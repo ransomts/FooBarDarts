@@ -40,6 +40,10 @@ public class AccountScreenActivity extends AppCompatActivity
 
     private String user_name;
 
+    public FirebaseAuth getFirebaseAuth () {
+        return mAuth;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,8 +60,11 @@ public class AccountScreenActivity extends AppCompatActivity
                     // User is signed in
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
                     user_name = user.getDisplayName();
+                    mStatusTextView.setText("Logged in as: " + user_name);
+
                 } else {
                     // User is signed out
+                    mStatusTextView.setText("Logged out");
                     Log.d(TAG, "onAuthStateChanged:signed_out");
                 }
                 // ...
@@ -84,6 +91,9 @@ public class AccountScreenActivity extends AppCompatActivity
     @Override
     public void onStart() {
         super.onStart();
+        if (mAuth.getCurrentUser() != null) {
+            mStatusTextView.setText("Logged in");
+        }
         mAuth.addAuthStateListener(mAuthListener);
     }
 
@@ -93,74 +103,6 @@ public class AccountScreenActivity extends AppCompatActivity
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
         }
-    }
-
-    private void createAccount(String email, String password) {
-        Log.d(TAG, "createAccount:" + email);
-        /* Validate correct email, username requirements, etc.
-        if (!validateForm()) {
-            return;
-        }
-        */
-        //showProgressDialog();
-
-        // [START create_user_with_email]
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d(TAG, "createUserWithEmail:onComplete:" + task.isSuccessful());
-
-                        // If sign in fails, display a message to the user. If sign in succeeds
-                        // the auth state listener will be notified and logic to handle the
-                        // signed in user can be handled in the listener.
-                        if (!task.isSuccessful()) {
-                            Toast.makeText(getApplicationContext(), R.string.auth_failed,
-                                    Toast.LENGTH_SHORT).show();
-                        }
-
-                        // [START_EXCLUDE]
-                        //hideProgressDialog();
-                        // [END_EXCLUDE]
-                    }
-                });
-        // [END create_user_with_email]
-    }
-
-    private void signIn(String email, String password) {
-        Log.d(TAG, "signIn:" + email);
-        /*
-        if (!validateForm()) {
-            return;
-        }
-
-        showProgressDialog();
-        */
-        // [START sign_in_with_email]
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d(TAG, "signInWithEmail:onComplete:" + task.isSuccessful());
-
-                        // If sign in fails, display a message to the user. If sign in succeeds
-                        // the auth state listener will be notified and logic to handle the
-                        // signed in user can be handled in the listener.
-                        if (!task.isSuccessful()) {
-                            Log.w(TAG, "signInWithEmail:failed", task.getException());
-                            Toast.makeText(getApplicationContext(), R.string.auth_failed,
-                                    Toast.LENGTH_SHORT).show();
-                        }
-
-                        // [START_EXCLUDE]
-                        if (!task.isSuccessful()) {
-                            mStatusTextView.setText(R.string.auth_failed);
-                        }
-                        //hideProgressDialog();
-                        // [END_EXCLUDE]
-                    }
-                });
-        // [END sign_in_with_email]
     }
 
     private void signIn() {
@@ -207,7 +149,7 @@ public class AccountScreenActivity extends AppCompatActivity
                             Toast.makeText(getApplicationContext(), "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         } else {
-                            mStatusTextView.setText("Logged in as: " + user_name);
+                            //mStatusTextView.setText("Logged in as: " + user_name);
                         }
                     }
                 });
@@ -225,14 +167,6 @@ public class AccountScreenActivity extends AppCompatActivity
         // Firebase sign out
         mAuth.signOut();
 
-        // Google sign out
-        Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
-                new ResultCallback<Status>() {
-                    @Override
-                    public void onResult(@NonNull Status status) {
-                        //updateUI(null);
-                    }
-                });
     }
     @Override
     public void onClick(View v) {
