@@ -7,6 +7,8 @@
     <string name="x01_scores_prompt">Score Goal</string>
     <string name="auth_failed">Authentication Failed</string>
     <string name="utility_page">Utility Page</string>
+    <string name="x01_setup">Setup X01 Game</string>
+    <string name="x01_scoreboard">X01 Scoreboard</string>
     <string-array name="x01_scores">
         <item>301</item>
         <item>501</item>
