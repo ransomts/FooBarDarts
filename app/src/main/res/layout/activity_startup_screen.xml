@@ -53,6 +53,15 @@
             android:text="@string/account_settings"
             tools:layout_editor_absoluteX="0dp"
             tools:layout_editor_absoluteY="0dp" />
+
+        <Button
+            android:id="@+id/utility_page_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="onClick"
+            android:text="@string/utility_page"
+            tools:layout_editor_absoluteX="0dp"
+            tools:layout_editor_absoluteY="0dp" />
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

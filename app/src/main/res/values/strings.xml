@@ -6,6 +6,7 @@
     <string name="account_settings">Account Settings</string>
     <string name="x01_scores_prompt">Score Goal</string>
     <string name="auth_failed">Authentication Failed</string>
+    <string name="utility_page">Utility Page</string>
     <string-array name="x01_scores">
         <item>301</item>
         <item>501</item>

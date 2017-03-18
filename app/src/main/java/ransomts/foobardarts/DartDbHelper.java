@@ -8,7 +8,10 @@ import android.provider.BaseColumns;
 /**
  * Created by tim on 3/12/17.
  *
- * Java file to implement my sqlite database to model X01 games
+ * Java file to implement my sqlite database to model X01 games, this just holds some commands
+ * such as the create and delete table lines and provides sweet sweet autocompletion for table columns
+ *
+ * For the file that accesses the firebase database, look at DartDb.java
  */
 
 class DartDbHelper extends SQLiteOpenHelper {
