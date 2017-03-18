@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "772588297016",
+    "firebase_url": "https://foobardarts-4e031.firebaseio.com",
+    "project_id": "foobardarts-4e031",
+    "storage_bucket": "foobardarts-4e031.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:772588297016:android:e80aa97e4e9fed24",
+        "android_client_info": {
+          "package_name": "ransomts.foobardarts"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "772588297016-jbalad5m7o39iksig47epadsdvig7gc6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ransomts.foobardarts",
+            "certificate_hash": "8c1396c1795e502bce64a3d12d561659fd998ea0"
+          }
+        },
+        {
+          "client_id": "772588297016-cor1tjku28cs4aldo2no9m5irt0i51o8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAwe2SSsT22LMYToSd4wrvEOZ-Rb1aAJC4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "772588297016-cor1tjku28cs4aldo2no9m5irt0i51o8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

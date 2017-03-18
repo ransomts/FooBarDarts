@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">FooBarDarts</string>
+    <string name="play_x01">Play X01</string>
+    <string name="play_cricket">Play Cricket</string>
+    <string name="play_other">Play Other</string>
+    <string name="account_settings">Account Settings</string>
+    <string name="x01_scores_prompt">Score Goal</string>
+    <string name="auth_failed">Authentication Failed</string>
+    <string-array name="x01_scores">
+        <item>301</item>
+        <item>501</item>
+        <item>701</item>
+        <item>1001</item>
+    </string-array>
+</resources>
