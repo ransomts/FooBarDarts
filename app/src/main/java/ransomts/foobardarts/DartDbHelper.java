@@ -7,18 +7,20 @@ import android.provider.BaseColumns;
 
 /**
  * Created by tim on 3/12/17.
+ *
+ * Java file to implement my sqlite database to model X01 games
  */
 
-public class DartDbHelper extends SQLiteOpenHelper {
+class DartDbHelper extends SQLiteOpenHelper {
 
-    public static final int DATABASE_VERSION = 1;
-    public static final String DATABASE_NAME = "Darts.db";
+    private static final int DATABASE_VERSION = 1;
+    private static final String DATABASE_NAME = "Darts.db";
 
     public DartDbHelper (Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
-    public static final String SQL_CREATE_ENTRIES =
+    private static final String SQL_CREATE_ENTRIES =
             DartsContract.Users.SQL_CREATE_ENTRIES + DartsContract.GameNames.SQL_CREATE_ENTRIES +
             DartsContract.Game.SQL_CREATE_ENTRIES + DartsContract.Stats.SQL_CREATE_ENTRIES;
 
@@ -33,16 +35,16 @@ public class DartDbHelper extends SQLiteOpenHelper {
     }
 
     // Writeup of my sqlite database so I can use those sweet sweet string completions aw yeah
-    public static final class DartsContract {
+    static final class DartsContract {
         // Just to make sure I won't call this
         private DartsContract(){}
 
-        public static class Users implements BaseColumns {
-            public static final String TABLE_NAME = "users";
-            public static final String COLUMN_ID = "id";
-            public static final String COLUMN_USERNAME = "username";
+        static class Users implements BaseColumns {
+            static final String TABLE_NAME = "users";
+            static final String COLUMN_ID = "id";
+            static final String COLUMN_USERNAME = "username";
 
-            public static final String SQL_CREATE_ENTRIES =
+            static final String SQL_CREATE_ENTRIES =
                     "CREATE TABLE " + Users.TABLE_NAME + " (" +
                     Users.COLUMN_ID +        " VARCHAR(255), " +
                     Users.COLUMN_USERNAME  + " VARCHAR(255), " +
@@ -52,16 +54,15 @@ public class DartDbHelper extends SQLiteOpenHelper {
                     "DROP TABLE IF EXISTS " + TABLE_NAME + ";";
         }
 
-        public static class Stats implements BaseColumns {
-            public static final String TABLE_NAME = "statistics";
-            public static final String COLUMN_WLRATIO = "win_lose_ratio";
-            public static final String COLUMN_TOTAL_BULLS = "total_bulls";
-            public static final String COLUMN_NUM_TOTAL_POINTS = "total_points";
-            public static final String COLUMN_MOST_HIT_NUMBER = "most_hit_number";
-            public static final String COLUMN_USER_ID = "user_id";
+        static class Stats implements BaseColumns {
+            static final String TABLE_NAME = "statistics";
+            static final String COLUMN_WLRATIO = "win_lose_ratio";
+            static final String COLUMN_TOTAL_BULLS = "total_bulls";
+            static final String COLUMN_NUM_TOTAL_POINTS = "total_points";
+            static final String COLUMN_MOST_HIT_NUMBER = "most_hit_number";
+            static final String COLUMN_USER_ID = "user_id";
 
-
-            public static final String SQL_CREATE_ENTRIES =
+            static final String SQL_CREATE_ENTRIES =
                     "CREATE TABLE " + TABLE_NAME + " (" +
                     COLUMN_WLRATIO + " REAL, " +
                     COLUMN_TOTAL_BULLS + " BIGINT, " +
@@ -75,12 +76,12 @@ public class DartDbHelper extends SQLiteOpenHelper {
             public static final String SQL_DELETE_ENTRIES =
                     "DROP TABLE IF EXISTS " + TABLE_NAME + ";";
         }
-        public static class GameNames implements BaseColumns {
-            public static final String TABLE_NAME = "game_types";
-            public static final String COLUMN_GAMENAME = "game_name";
-            public static final String COLUMN_RULES = "rules";
+        static class GameNames implements BaseColumns {
+            static final String TABLE_NAME = "game_types";
+            static final String COLUMN_GAMENAME = "game_name";
+            static final String COLUMN_RULES = "rules";
 
-            public static final String SQL_CREATE_ENTRIES = "CREATE TABLE " + TABLE_NAME + " (" +
+            static final String SQL_CREATE_ENTRIES = "CREATE TABLE " + TABLE_NAME + " (" +
                     COLUMN_RULES + " TEXT, " +
                     COLUMN_GAMENAME + " VARCHAR(255), " +
                     "PRIMARY KEY (" + COLUMN_GAMENAME + ")" +
@@ -89,14 +90,14 @@ public class DartDbHelper extends SQLiteOpenHelper {
             public static final String SQL_DELETE_ENTRIES =
                     "DROP TABLE IF EXISTS " + TABLE_NAME + ";";
         }
-        public static class Game implements BaseColumns {
-            public static final String TABLE_NAME = "game";
-            public static final String COLUMN_START_TIME = "game_started";
-            public static final String COLUMN_PLAYERID = "player_id";
-            public static final String COLUMN_WON = "won";
-            public static final String COLUMN_GAME_NAME = "game_name";
-            public static final String COLUMN_GAME_DATA = "game_data";
-            public static final String SQL_CREATE_ENTRIES = "CREATE TABLE " + TABLE_NAME + " (" +
+        static class Game implements BaseColumns {
+            static final String TABLE_NAME = "game";
+            static final String COLUMN_START_TIME = "game_started";
+            static final String COLUMN_PLAYERID = "player_id";
+            static final String COLUMN_WON = "won";
+            static final String COLUMN_GAME_NAME = "game_name";
+            static final String COLUMN_GAME_DATA = "game_data";
+            static final String SQL_CREATE_ENTRIES = "CREATE TABLE " + TABLE_NAME + " (" +
                     COLUMN_GAME_DATA + " VARCHAR(255), " +
                     COLUMN_GAME_NAME + " VARCHAR(255), " +
                     COLUMN_PLAYERID + " VARCHAR(255), " +
@@ -105,7 +106,7 @@ public class DartDbHelper extends SQLiteOpenHelper {
                     "PRIMARY KEY (" + COLUMN_PLAYERID + ", " + COLUMN_START_TIME + ", " + COLUMN_GAME_NAME + ")" +
                     ");" ;
 
-            public static final String SQL_DELETE_ENTRIES =
+            static final String SQL_DELETE_ENTRIES =
                     "DROP TABLE IF EXISTS " + TABLE_NAME + ";";
         }
     }
