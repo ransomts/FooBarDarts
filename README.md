@@ -7,7 +7,7 @@ Dart scorekeeping android app
   + Fill in some example data
     - cricket / X01 rules in game name table
     - testing user data
-  + Connect to database from android
+  + ~~Connect to database from android~~ (Firebase database)
     - ~~Student Machine?~~
     - Google sql cloud?  
   + Store Data in database
@@ -15,7 +15,7 @@ Dart scorekeeping android app
     - user information from google sign in
 
 * Networking
-  + Connect/play with other user in real time (tcp/udp socket)
+  + Connect/play with other user in real time (Firebase cloud messaging)
   
 * Update UI
   + Change main screen to console interface
