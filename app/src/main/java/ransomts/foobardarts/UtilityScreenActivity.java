@@ -16,11 +16,18 @@ public class UtilityScreenActivity extends AppCompatActivity
         database = new DartDb();
     }
 
+    public void test_messaging() {
+
+    }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.test_database_button:
                 database.writeToDatabase();
+                break;
+            case R.id.test_fcm_button:
+                test_messaging();
                 break;
         }
     }

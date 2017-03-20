@@ -8,24 +8,38 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:minSdkVersion="8"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity"></activity>
+        <activity android:name=".MainActivity" />
         <activity android:name=".StartupScreenActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".X01SetupActivity"
+        <activity
+            android:name=".X01SetupActivity"
             android:label="@string/x01_setup"
-            android:parentActivityName=".StartupScreenActivity"/>
-        <activity android:name=".X01ScoreboardActivity"
+            android:parentActivityName=".StartupScreenActivity" />
+        <activity
+            android:name=".X01ScoreboardActivity"
             android:label="@string/x01_scoreboard"
-            android:parentActivityName=".X01SetupActivity"/>
-        <activity android:name=".AccountScreenActivity"
+            android:parentActivityName=".X01SetupActivity" />
+        <activity
+            android:name=".AccountScreenActivity"
             android:label="@string/account_settings"
             android:parentActivityName=".StartupScreenActivity" />
-        <activity android:name=".UtilityScreenActivity"></activity>
+        <activity android:name=".UtilityScreenActivity" />
+        <service
+            android:name=".MessagingService">
+        <intent-filter>
+            <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+        </intent-filter>
+
+        android:name=".MessagingService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>
