@@ -12,25 +12,26 @@ import com.google.firebase.database.ValueEventListener;
 /**
  * Created by tim on 3/17/17.
  *
- * File to actually access the firebsae database, using DartDbHelper.java
+ * File to actually access the firebsae database
  */
 
 class DartDb {
 
     private FirebaseAuth mAuth;
 
+    FirebaseDatabase database;
+    DatabaseReference myRef;
+
     private final String TAG = "DartDb";
 
-    DartDb() {}
+    DartDb() {
+    }
 
     void sendRegistrationToServer(String refreshedToken) {
         // TODO: implement
     }
 
     void writeToDatabase() {
-        // Write a message to the database
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("message");
 
         myRef.setValue("Hello, World!");
 

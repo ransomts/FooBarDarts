@@ -6,8 +6,6 @@ package ransomts.foobardarts;
   Java class to model a game of 501 or 301
  */
 
-import android.content.ContentValues;
-
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -105,14 +103,6 @@ class X01_game {
     }
 
     public void store_game_in_database() {
-        ContentValues values = new ContentValues();
-        values.put(DartDbHelper.DartsContract.Game.COLUMN_START_TIME, start_time);
-        values.put(DartDbHelper.DartsContract.Game.COLUMN_WON,
-                getCurrentPlayer().equals(players[winningPlayerIndex]));
-        values.put(DartDbHelper.DartsContract.Game.COLUMN_GAME_NAME,
-                Integer.toString(score_goal));
-
-        String turn = turns[player_turn_index].toString();
 
     }
 
