@@ -24,7 +24,8 @@ public class UtilityScreenActivity extends AppCompatActivity
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.test_database_button:
-                database.writeToDatabase();
+                database.updateDisplayNameEntry("Timothy Ransom");
+                database.getDisplayNameEntry();
                 break;
             case R.id.test_fcm_button:
                 test_messaging();
