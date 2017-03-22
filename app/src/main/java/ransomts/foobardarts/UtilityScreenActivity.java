@@ -29,10 +29,10 @@ public class UtilityScreenActivity extends AppCompatActivity
         final EditText txtUrl = new EditText(this);
 
         new AlertDialog.Builder(this)
-                .setTitle("Moustachify Link")
-                .setMessage("Paste in the link of an image to moustachify!")
+                .setTitle("Input Text to Toast")
+                .setMessage("Some sort of sub message")
                 .setView(txtUrl)
-                .setPositiveButton("Moustachify", new DialogInterface.OnClickListener() {
+                .setPositiveButton("Start Game", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         String url = txtUrl.getText().toString();
 

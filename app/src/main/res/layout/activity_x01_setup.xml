@@ -61,11 +61,18 @@
             tools:layout_editor_absoluteY="8dp">
 
             <Button
-                android:id="@+id/button_network_game"
+                android:id="@+id/button_start_network_game"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:onClick="onClick"
-                android:text="Join/Start Network Game" />
+                android:text="Join Network Game" />
+
+            <Button
+                android:id="@+id/button_join_network_game"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:onClick="onClick"
+                android:text="Start Network Game" />
 
             <Button
                 android:id="@+id/button_local_game"

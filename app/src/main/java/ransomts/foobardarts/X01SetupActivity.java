@@ -1,15 +1,29 @@
 package ransomts.foobardarts;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.Spinner;
+import android.widget.Toast;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class X01SetupActivity extends AppCompatActivity
         implements View.OnClickListener {
@@ -18,6 +32,9 @@ public class X01SetupActivity extends AppCompatActivity
 
     CheckBox double_in_toggle;
     CheckBox double_out_toggle;
+
+    private DatabaseReference game_ready_reference;
+    private ValueEventListener ready_table_listener;
 
     ExpandableListView players_view;
     List<String> player_list;
@@ -57,20 +74,108 @@ public class X01SetupActivity extends AppCompatActivity
         // TODO: pull a list of players from the expanding list
     }
 
+    public void begin_local_game() {
+        Intent intent = new Intent(this, X01ScoreboardActivity.class);
+        pullParameters();
+        intent.putExtra("double_in", double_in);
+        intent.putExtra("double_out", double_out);
+        intent.putExtra("score_goal", score_goal);
+        intent.putExtra("players", player_list.toArray());
+        startActivity(intent);
+        finish();
+    }
+
+    public void start_network_game() {
+
+        final EditText textBox = new EditText(this);
+
+        new AlertDialog.Builder(this)
+                .setTitle("Input New Game Id")
+                .setMessage("Some sort of sub message")
+                .setView(textBox)
+                .setPositiveButton("Start Game", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        final String game_id = textBox.getText().toString();
+
+                        game_ready_reference = FirebaseDatabase.getInstance().getReference("game/" + game_id);
+
+                        game_ready_reference.removeEventListener(ready_table_listener);
+                        // This probably is very inefficient, but we'll see
+                        ready_table_listener = new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                // Add current user to waiting list
+                                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                                FirebaseDatabase database = FirebaseDatabase.getInstance();
+                                String data = dataSnapshot.child("game").child(game_id).getValue(String.class);
+                                data += user.getUid();
+                                database.getReference("game").child(game_id).setValue(data);
+                                // TODO: Update player list on page
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+                                // TODO: log this or something guy
+                            }
+                        };
+                        game_ready_reference.addValueEventListener(ready_table_listener);
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                    }
+                })
+                .show();
+    }
+
+    public void join_network_game () {
+
+        final EditText textBox = new EditText(this);
+
+        new AlertDialog.Builder(this)
+                .setTitle("Input Game Id")
+                .setMessage("")
+                .setView(textBox)
+                .setPositiveButton("Start Game", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        final String game_id = textBox.getText().toString();
+
+                        game_ready_reference = FirebaseDatabase.getInstance().getReference("game/" + game_id);
+                        game_ready_reference.removeEventListener(ready_table_listener);
+                        // This probably is very inefficient, but we'll see
+                        ready_table_listener = new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                // TODO: Update player list on page
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+                                // TODO: log this or something guy
+                            }
+                        };
+                        game_ready_reference.addValueEventListener(ready_table_listener);
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                    }
+                })
+                .show();
+    }
+
     @Override
     public void onClick(View v) {
         Intent intent = null;
         switch (v.getId()) {
             case R.id.button_local_game:
-                intent = new Intent(this, X01ScoreboardActivity.class);
-                pullParameters();
-                intent.putExtra("double_in", double_in);
-                intent.putExtra("double_out", double_out);
-                intent.putExtra("score_goal", score_goal);
-                intent.putExtra("players", player_list.toArray());
-                startActivity(intent);
+                begin_local_game();
                 break;
-            case R.id.button_network_game:
+            case R.id.button_start_network_game:
+                start_network_game();
+                break;
+            case R.id.button_join_network_game:
+                join_network_game();
                 break;
         }
     }
