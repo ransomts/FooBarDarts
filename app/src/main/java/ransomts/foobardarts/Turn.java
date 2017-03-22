@@ -41,7 +41,7 @@ class Turn {
     public String toString() {
         String temp = playerId + "[";
         for (int i = 0; i < shots_taken; i++) {
-            temp += "{" + "\"mods\" : " + mods[i] + ", \"values\" : " + values[i] + "}";
+            temp += "{" + mods[i] + values[i] + "}";
             // trying to keep this to be valid json
             if (i != shots_taken - 1) {
                 temp += ",";

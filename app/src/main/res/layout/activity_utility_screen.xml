@@ -36,6 +36,15 @@
             tools:layout_editor_absoluteX="0dp"
             tools:layout_editor_absoluteY="0dp" />
 
+        <Button
+            android:id="@+id/test_input_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="onClick"
+            android:text="Test Text Input Dialog"
+            tools:layout_editor_absoluteX="0dp"
+            tools:layout_editor_absoluteY="0dp" />
+
 
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
