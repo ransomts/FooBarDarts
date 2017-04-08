@@ -1,7 +1,6 @@
-package ransomts.foobardarts;
+package ransomts.foobardarts.X01;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -11,7 +10,6 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -23,7 +21,10 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+
+import ransomts.foobardarts.DartDb;
+
+import ransomts.foobardarts.R;
 
 public class X01SetupActivity extends AppCompatActivity
         implements View.OnClickListener {
@@ -91,21 +92,27 @@ public class X01SetupActivity extends AppCompatActivity
 
         new AlertDialog.Builder(this)
                 .setTitle("Input New Game Id")
-                .setMessage("Some sort of sub message")
+                //.setMessage("Some sort of sub message")
                 .setView(textBox)
-                .setPositiveButton("Start Game", new DialogInterface.OnClickListener() {
+                .setPositiveButton("Join Game", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
+
+                        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                         final String game_id = textBox.getText().toString();
 
                         game_ready_reference = FirebaseDatabase.getInstance().getReference("game/" + game_id);
 
                         game_ready_reference.removeEventListener(ready_table_listener);
+
+                        DartDb db = new DartDb();
+
+                        db.updateUserReadyForGame(user.getDisplayName(), game_id, true);
+
                         // This probably is very inefficient, but we'll see
                         ready_table_listener = new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 // Add current user to waiting list
-                                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                                 FirebaseDatabase database = FirebaseDatabase.getInstance();
                                 String data = dataSnapshot.child("game").child(game_id).getValue(String.class);
                                 data += user.getUid();
@@ -141,7 +148,9 @@ public class X01SetupActivity extends AppCompatActivity
                         final String game_id = textBox.getText().toString();
 
                         game_ready_reference = FirebaseDatabase.getInstance().getReference("game/" + game_id);
-                        game_ready_reference.removeEventListener(ready_table_listener);
+                        if (game_ready_reference != null) {
+                            game_ready_reference.removeEventListener(ready_table_listener);
+                        }
                         // This probably is very inefficient, but we'll see
                         ready_table_listener = new ValueEventListener() {
                             @Override
@@ -166,7 +175,7 @@ public class X01SetupActivity extends AppCompatActivity
 
     @Override
     public void onClick(View v) {
-        Intent intent = null;
+
         switch (v.getId()) {
             case R.id.button_local_game:
                 begin_local_game();

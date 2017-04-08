@@ -1,4 +1,4 @@
-package ransomts.foobardarts;
+package ransomts.foobardarts.X01;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -7,7 +7,11 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.util.Arrays;
+
+import ransomts.foobardarts.R;
 
 public class X01ScoreboardActivity extends AppCompatActivity
         implements View.OnClickListener {
@@ -34,7 +38,7 @@ public class X01ScoreboardActivity extends AppCompatActivity
         boolean in = getIntent().getBooleanExtra("double_in", true);
         boolean out = getIntent().getBooleanExtra("double_out", true);
 
-        game = new X01_game(players, score_goal, in, out);
+        game = new X01_game(players, score_goal, in, out, "");
 
         current_shot_index = 0;
         mods = new Turn.Modifier[game.getShotsPerTurn()];
@@ -58,8 +62,6 @@ public class X01ScoreboardActivity extends AppCompatActivity
         }
         shots[current_shot_index] = 0;
         mods[current_shot_index] = Turn.Modifier.Single;
-
-        update_visuals();
     }
 
     void handle_shot_values(int shot_value) {
@@ -67,14 +69,15 @@ public class X01ScoreboardActivity extends AppCompatActivity
         // TODO: Put in logic to not allow triple bulls
         shots[current_shot_index] = shot_value;
         current_shot_index = (current_shot_index + 1) % game.getShotsPerTurn();
-        update_visuals();
 
         if (current_shot_index == 0) {
             game.add_turn(shots, mods);
             Arrays.fill(mods, Turn.Modifier.Single);
             Arrays.fill(shots, 0);
         }
+        handle_modifiers(findViewById(R.id.button0));
     }
+
 
     private void handle_modifiers(View v) {
         switch (v.getId()) {
@@ -100,6 +103,7 @@ public class X01ScoreboardActivity extends AppCompatActivity
                 doubles.setChecked(false);
                 triples.setChecked(false);
                 // Shouldn't actually need this case, but whatever
+                // update: turned out to actually be useful, go me
         }
         mods[current_shot_index] = shot_modifier;
     }
@@ -147,9 +151,14 @@ public class X01ScoreboardActivity extends AppCompatActivity
         }
     }
 
-    void update_visuals() {
+    String current_user_name() {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        return auth.getCurrentUser() != null ? auth.getCurrentUser().getDisplayName() : "Ziltoid";
+    }
+
+    void update_visuals(Turn turn) {
         // TODO: grab current player name from login
-        String current_user = game.getFirstPlayerName();
+        String current_user = current_user_name();
 
         String display_string;
 

@@ -1,4 +1,4 @@
-package ransomts.foobardarts;
+package ransomts.foobardarts.X01;
 
 /*
   Created by tim on 3/11/17.
@@ -6,14 +6,29 @@ package ransomts.foobardarts;
   Java object to model one dart turn in any game
  */
 
+import java.util.ArrayList;
+import java.util.List;
+
 class Turn {
+
+    public void setPointTotal(int pointTotal) {
+        this.pointTotal = pointTotal;
+    }
+
+    public int getPointTotal() {
+        return pointTotal;
+    }
+
+    public List<Modifier> getMods() { return mods; }
+    public List<Integer> getValues() { return values; }
+    public String getPlayerId() { return playerId; }
 
     enum Modifier {Single, Double, Triple}
 
     private String playerId;
-    private int shots_taken;
-    private int[] values;
-    private Modifier[] mods;
+    private List<Integer> values;
+    private List<Modifier> mods;
+    private int pointTotal;
 
     Turn() {
         this("Ziltoid", 3);
@@ -21,9 +36,8 @@ class Turn {
 
     Turn(String playerId, int shots_per_turn) {
 
-        shots_taken = 0;
-        values = new int[shots_per_turn];
-        mods = new Modifier[shots_per_turn];
+        values = new ArrayList<Integer>(shots_per_turn);
+        mods = new ArrayList<Modifier>(shots_per_turn);
         this.playerId = playerId;
     }
 
@@ -31,12 +45,11 @@ class Turn {
         if (value == 25 && mod == Modifier.Triple) {
             return false;
         }
-        values[shots_taken] = value;
-        mods[shots_taken] = mod;
-        shots_taken++;
+        values.add(value);
+        mods.add(mod);
         return true;
     }
-
+/*
     @Override
     public String toString() {
         String temp = playerId + "[";
@@ -49,4 +62,5 @@ class Turn {
         }
         return temp + "]";
     }
+    */
 }

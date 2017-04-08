@@ -1,10 +1,16 @@
-package ransomts.foobardarts;
+package ransomts.foobardarts.X01;
 
 /*
   Created by tim on 3/11/17.
 
   Java class to model a game of 501 or 301
  */
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -33,10 +39,10 @@ class X01_game {
     }
 
     X01_game() {
-        this(new String[]{"Player One"}, 501, false, false);
+        this(new String[]{"Player One"}, 501, false, false, "");
     }
 
-    X01_game(String[] players, int score_goal, boolean double_in, boolean double_out) {
+    X01_game(String[] players, int score_goal, boolean double_in, boolean double_out, String game_id) {
 
         this.start_time = DateFormat.getTimeInstance().format(new Date());
         this.players = new String[players.length];
@@ -56,6 +62,28 @@ class X01_game {
             turns[i] = new LinkedList<Turn>();
             this.current_scores.put(players[i], score_goal);
         }
+
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().
+                getReference().child("game").child("game_id").child("most_recent_turn");
+
+        ValueEventListener mostRecentTurnListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                handleDataChange(dataSnapshot.getValue());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        mDatabase.addValueEventListener(mostRecentTurnListener);
+    }
+
+    // TODO: Rename method
+    private void handleDataChange(Object value) {
+        //String values = (String) value;
+
     }
 
     boolean add_turn(int[] shot_values, Turn.Modifier[] mod_values) {
@@ -68,7 +96,24 @@ class X01_game {
             }
         }
 
+        Turn turn = make_turn(shot_values, mod_values);
+
+        // handle all the local stuff
+        update_current_scores(turn);
+        update_current_turn(turn);
+        // and update the database
+        add_turn_to_database(turn);
+
+        if (winCondition()) {
+            winningPlayerIndex = player_turn_index;
+        }
+        return true;
+    }
+
+    private Turn make_turn(int[] shot_values, Turn.Modifier[] mod_values) {
+
         Turn turn = new Turn();
+
         int point_total = 0;
         for (int i = 0; i < 3; i++) {
             turn.add_shot(shot_values[i], mod_values[i]);
@@ -83,27 +128,39 @@ class X01_game {
             point_total += shot_values[i];
         }
 
+        turn.setPointTotal(point_total);
+        return turn;
+    }
+
+    private void update_current_turn(Turn turn) {
+        LinkedList<Turn> current_turn = this.turns[player_turn_index];
+        current_turn.add(turn);
+        set_player_turn_index(get_player_turn_index() + 1);
+    }
+
+    private void update_current_scores(Turn turn) {
+        int point_total = turn.getPointTotal();
+
         String cur_play = getCurrentPlayer();
         if (current_scores.get(cur_play) - point_total >= 0) {
             current_scores.put(cur_play, current_scores.get(cur_play) - point_total);
         }
         current_scores.put(cur_play, current_scores.get(cur_play));
-        LinkedList<Turn> current_turn = this.turns[player_turn_index];
-        current_turn.add(turn);
-        set_player_turn_index(get_player_turn_index() + 1);
+    }
 
-        if (winCondition()) {
-            winningPlayerIndex = player_turn_index;
-        }
-        return true;
+    private void add_turn_to_database(Turn turn) {
+        DatabaseReference turn_reference = FirebaseDatabase.getInstance().getReference();
+        turn_reference = turn_reference.child("game").child("game_id").child("turns");
+        turn_reference = turn_reference.push();
+        turn_reference.setValue(turn);
+
+        DatabaseReference turn_reference2 = FirebaseDatabase.getInstance().getReference();
+        turn_reference2 = turn_reference2.child("game").child("game_id").child("most_recent_turn");
+        turn_reference2.setValue(turn);
     }
 
     private boolean winCondition() {
         return current_scores.get(getCurrentPlayer()) == 0;
-    }
-
-    public void store_game_in_database() {
-
     }
 
     String getCurrentPlayer() {
