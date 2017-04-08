@@ -19,13 +19,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".X01SetupActivity"
+            android:name=".X01.X01SetupActivity"
             android:label="@string/x01_setup"
             android:parentActivityName=".StartupScreenActivity" />
         <activity
-            android:name=".X01ScoreboardActivity"
+            android:name=".X01.X01ScoreboardActivity"
             android:label="@string/x01_scoreboard"
-            android:parentActivityName=".X01SetupActivity" />
+            android:parentActivityName=".X01.X01SetupActivity" />
         <activity
             android:name=".AccountScreenActivity"
             android:label="@string/account_settings"

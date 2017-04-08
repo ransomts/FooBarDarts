@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="ransomts.foobardarts.X01SetupActivity">
+    tools:context="ransomts.foobardarts.X01.X01SetupActivity">
 
     <LinearLayout
         android:layout_width="0dp"
@@ -65,14 +65,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:onClick="onClick"
-                android:text="Join Network Game" />
+                android:text="Join \nNetwork Game" />
 
             <Button
                 android:id="@+id/button_join_network_game"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:onClick="onClick"
-                android:text="Start Network Game" />
+                android:text="Start \nNetwork Game" />
 
             <Button
                 android:id="@+id/button_local_game"
