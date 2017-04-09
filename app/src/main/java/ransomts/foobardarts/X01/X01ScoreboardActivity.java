@@ -60,6 +60,9 @@ public class X01ScoreboardActivity extends AppCompatActivity
         remote_player = (TextView) findViewById(R.id.view_remote_player);
     }
 
+    private void initializeDatabaseListeners(String game_id) {
+    }
+
     void handleUndoButton() {
 
         // TODO: Be able to undo last shot of previous turn
@@ -182,9 +185,10 @@ public class X01ScoreboardActivity extends AppCompatActivity
     }
 
     public void setupScoreDatabaseListeners(String game_id) {
-        DatabaseReference mostRecentTurnRef = FirebaseDatabase.getInstance().getReference();
-        mostRecentTurnRef = mostRecentTurnRef.child("game").child(game_id).child("most_recent_turn");
+        DatabaseReference gameRef = FirebaseDatabase.getInstance().getReference();
+        gameRef = gameRef.child("game").child(game_id);
 
+        DatabaseReference mostRecentTurnRef = gameRef.child("game").child(game_id).child("most_recent_turn");
         ValueEventListener mostRecentTurnListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -198,26 +202,43 @@ public class X01ScoreboardActivity extends AppCompatActivity
             }
         };
         mostRecentTurnRef.addValueEventListener(mostRecentTurnListener);
+
+
+        DatabaseReference turnRef = gameRef.child("most_recent_turn");
+        ValueEventListener turnListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                updateScoreboardFromDatabase(null);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        turnRef.addValueEventListener(turnListener);
+
     }
 
     // specifically, update the visuals based on the X01 game controller a la mvc
-    private void updateVisuals() {
+    private void updateScoreboardFromDatabase(Turn turn) {
 
-        Turn turn = game.getLatestTurn();
+        if (turn == null) {
+            return;
+        }
 
-        if (turn == null) { return; }
+        List<Integer> remoteShots = turn.getValues();
+        List<Turn.Modifier> remoteMods = turn.getMods();
 
-        List<Integer> shots = turn.getValues();
-        List<Turn.Modifier> mods = turn.getMods();
+        String display_string;
+        display_string = String.valueOf(remoteShots.get(0)) + " " + String.valueOf(remoteMods.get(0));
+        ((TextView) findViewById(R.id.view_first_shot)).setText(display_string);
+        display_string = String.valueOf(remoteShots.get(1)) + " " + String.valueOf(remoteMods.get(1));
+        ((TextView) findViewById(R.id.view_second_shot)).setText(display_string);
+        display_string = String.valueOf(remoteShots.get(2)) + " " + String.valueOf(remoteMods.get(2));
+        ((TextView) findViewById(R.id.view_third_shot)).setText(display_string);
 
-        String current_user = turn.getPlayerId();
-
-
-
-        // sometimes the best solution is a dumb one, kiss
-
-        local_player.setText(current_user + " " + game.getFirstPlayerScore());
-        String remote_player_name = game.getCurrentPlayer();
-        remote_player.setText(remote_player_name + " " + game.getCurrentScore(remote_player_name));
+        String remotePlayerName = turn.getPlayerId();
+        ((TextView) findViewById(R.id.view_remote_player)).setText(remotePlayerName);
     }
 }
