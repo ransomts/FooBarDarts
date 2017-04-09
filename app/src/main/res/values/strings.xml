@@ -9,6 +9,7 @@
     <string name="utility_page">Utility Page</string>
     <string name="x01_setup">Setup X01 Game</string>
     <string name="x01_scoreboard">X01 Scoreboard</string>
+    <string name="default_value_display">[M][S]</string>
     <string-array name="x01_scores">
         <item>301</item>
         <item>501</item>
