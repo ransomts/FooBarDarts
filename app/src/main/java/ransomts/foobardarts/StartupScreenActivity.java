@@ -5,6 +5,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 
+import ransomts.foobardarts.X01.X01SetupActivity;
+
 public class StartupScreenActivity extends AppCompatActivity
         implements View.OnClickListener {
 
@@ -42,7 +44,6 @@ public class StartupScreenActivity extends AppCompatActivity
         if (intent != null) {
             startActivity(intent);
         }
-
-
+        finish();
     }
 }

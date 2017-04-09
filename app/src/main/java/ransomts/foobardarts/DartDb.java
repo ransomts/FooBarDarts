@@ -22,7 +22,7 @@ import java.util.Map;
  * File to actually access the firebase
  */
 
-class DartDb {
+public class DartDb {
 
     private FirebaseAuth mAuth;
 
@@ -31,7 +31,7 @@ class DartDb {
 
     private final String TAG = "DartDb";
 
-    DartDb() {
+    public DartDb() {
         database = FirebaseDatabase.getInstance().getReference();
         user = FirebaseAuth.getInstance().getCurrentUser();
     }
@@ -56,6 +56,12 @@ class DartDb {
         );
     }
 
+    public void updateUserReadyForGame(String username, String game_id, boolean ready) {
+        Map<String, Object> info = new HashMap<>();
+        info.put(username, ready);
+        database.child("game").child(game_id).child("ready_to_start").updateChildren(info);
+    }
+
     void updateDisplayNameEntry(String new_display) {
         if (user == null) {
             return;
@@ -74,7 +80,6 @@ class DartDb {
     }
 
     void writeToDatabase() {
-
 
         // Read from the database
         database.addValueEventListener(new ValueEventListener() {
