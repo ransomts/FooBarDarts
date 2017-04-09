@@ -19,12 +19,10 @@ import java.util.Map;
 /**
  * Created by tim on 3/17/17.
  *
- * File to actually access the firebase
+ * A few utility methods to help with database access
  */
 
 public class DartDb {
-
-    private FirebaseAuth mAuth;
 
     DatabaseReference database;
     FirebaseUser user;
@@ -33,6 +31,7 @@ public class DartDb {
 
     public DartDb() {
         database = FirebaseDatabase.getInstance().getReference();
+        // TODO: this can throw a null pointer exception, add an assert or something
         user = FirebaseAuth.getInstance().getCurrentUser();
     }
 
@@ -52,7 +51,6 @@ public class DartDb {
 
                     }
                 }
-
         );
     }
 
@@ -77,26 +75,5 @@ public class DartDb {
 
     void sendRegistrationToServer(String refreshedToken) {
         // TODO: implement
-    }
-
-    void writeToDatabase() {
-
-        // Read from the database
-        database.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                String value = dataSnapshot.getValue(String.class);
-                Log.d(TAG, "Value is: " + value);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                Log.w(TAG, "Failed to read value.", error.toException());
-            }
-        });
-
     }
 }

@@ -75,9 +75,12 @@ public class X01SetupActivity extends AppCompatActivity
         // TODO: pull a list of players from the expanding list
     }
 
+
+
     public void begin_local_game() {
         Intent intent = new Intent(this, X01ScoreboardActivity.class);
         pullParameters();
+        intent.putExtra("game_id", "local_game");
         intent.putExtra("double_in", double_in);
         intent.putExtra("double_out", double_out);
         intent.putExtra("score_goal", score_goal);

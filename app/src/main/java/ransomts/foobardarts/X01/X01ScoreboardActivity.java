@@ -8,8 +8,14 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 import ransomts.foobardarts.R;
 
@@ -17,8 +23,8 @@ public class X01ScoreboardActivity extends AppCompatActivity
         implements View.OnClickListener {
 
     X01_game game;
-    Turn.Modifier mods[];
-    int shots[];
+    ArrayList<Turn.Modifier> mods;
+    ArrayList<Integer> shots;
     int current_shot_index;
     Turn.Modifier shot_modifier;
 
@@ -37,15 +43,15 @@ public class X01ScoreboardActivity extends AppCompatActivity
         int score_goal = getIntent().getIntExtra("score_goal", -1);
         boolean in = getIntent().getBooleanExtra("double_in", true);
         boolean out = getIntent().getBooleanExtra("double_out", true);
+        String game_id = getIntent().getStringExtra("game_id");
 
-        game = new X01_game(players, score_goal, in, out, "");
+        game = new X01_game(players, score_goal, in, out, game_id);
 
         current_shot_index = 0;
-        mods = new Turn.Modifier[game.getShotsPerTurn()];
-        shots = new int[game.getShotsPerTurn()];
-        Arrays.fill(mods, Turn.Modifier.Single);
-        Arrays.fill(shots, 0);
+        mods = new ArrayList<>(game.getShotsPerTurn());
+        shots = new ArrayList<>(game.getShotsPerTurn());
 
+        setupScoreDatabaseListeners(game_id);
 
         doubles = (ToggleButton) findViewById(R.id.toggle_double);
         triples = (ToggleButton) findViewById(R.id.toggle_triple);
@@ -54,32 +60,32 @@ public class X01ScoreboardActivity extends AppCompatActivity
         remote_player = (TextView) findViewById(R.id.view_remote_player);
     }
 
-    void handle_undo_button() {
+    void handleUndoButton() {
 
         // TODO: Be able to undo last shot of previous turn
         if (current_shot_index > 0) {
             current_shot_index--;
         }
-        shots[current_shot_index] = 0;
-        mods[current_shot_index] = Turn.Modifier.Single;
+        shots.set(current_shot_index,0);
+        mods.set(current_shot_index, Turn.Modifier.Single);
     }
 
-    void handle_shot_values(int shot_value) {
+    void handleShotValues(int shot_value) {
 
-        // TODO: Put in logic to not allow triple bulls
-        shots[current_shot_index] = shot_value;
+        shots.add(shot_value);
+        handleModifiers(findViewById(R.id.button0));
+        update_local_values();
         current_shot_index = (current_shot_index + 1) % game.getShotsPerTurn();
 
         if (current_shot_index == 0) {
-            game.add_turn(shots, mods);
-            Arrays.fill(mods, Turn.Modifier.Single);
-            Arrays.fill(shots, 0);
+            game.addTurn(shots, mods, game.getCurrentPlayer());
+            shots.clear();
+            mods.clear();
         }
-        handle_modifiers(findViewById(R.id.button0));
+
     }
 
-
-    private void handle_modifiers(View v) {
+    private void handleModifiers(View v) {
         switch (v.getId()) {
             // TODO: Can these if statements be reduced logically?
             case R.id.toggle_double:
@@ -105,7 +111,31 @@ public class X01ScoreboardActivity extends AppCompatActivity
                 // Shouldn't actually need this case, but whatever
                 // update: turned out to actually be useful, go me
         }
-        mods[current_shot_index] = shot_modifier;
+        mods.add(shot_modifier);
+    }
+
+    private void update_local_values() {
+
+        String display_string;
+
+        switch (current_shot_index) {
+            case 0:
+                display_string = String.valueOf(shots.get(0)) + " " + String.valueOf(mods.get(0));
+                ((TextView) findViewById(R.id.view_first_shot)).setText(display_string);
+                break;
+            case 1:
+                // eat your heart out Java types
+                display_string = String.valueOf(shots.get(1)) + " " + String.valueOf(mods.get(1));
+                ((TextView) findViewById(R.id.view_second_shot)).setText(display_string);
+                break;
+            case 2:
+                display_string = String.valueOf(shots.get(2)) + " " + String.valueOf(mods.get(2));
+                ((TextView) findViewById(R.id.view_third_shot)).setText(display_string);
+                break;
+        }
+        doubles.setChecked(false);
+        triples.setChecked(false);
+
     }
 
     @Override
@@ -136,44 +166,55 @@ public class X01ScoreboardActivity extends AppCompatActivity
                 // Can't decide if this is lazy or stupid. It's one of them
                 Button b = (Button) v;
                 // All the buttons are labeled with their numeric values, so...
-                handle_shot_values(Integer.valueOf(b.getText().toString()));
+                handleShotValues(Integer.valueOf(b.getText().toString()));
                 break;
             case R.id.buttonBull:
-                handle_shot_values(25);
+                handleShotValues(25);
                 break;
             // TODO: Undo button showing some runtime logic errors
             case R.id.buttonUndo:
-                handle_undo_button();
+                handleUndoButton();
             case R.id.toggle_double:
             case R.id.toggle_triple:
-                handle_modifiers(v);
+                handleModifiers(v);
                 break;
         }
     }
 
-    String current_user_name() {
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        return auth.getCurrentUser() != null ? auth.getCurrentUser().getDisplayName() : "Ziltoid";
+    public void setupScoreDatabaseListeners(String game_id) {
+        DatabaseReference mostRecentTurnRef = FirebaseDatabase.getInstance().getReference();
+        mostRecentTurnRef = mostRecentTurnRef.child("game").child(game_id).child("most_recent_turn");
+
+        ValueEventListener mostRecentTurnListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                //String values = dataSnapshot.toString();
+                //updateVisuals();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        mostRecentTurnRef.addValueEventListener(mostRecentTurnListener);
     }
 
-    void update_visuals(Turn turn) {
-        // TODO: grab current player name from login
-        String current_user = current_user_name();
+    // specifically, update the visuals based on the X01 game controller a la mvc
+    private void updateVisuals() {
 
-        String display_string;
+        Turn turn = game.getLatestTurn();
+
+        if (turn == null) { return; }
+
+        List<Integer> shots = turn.getValues();
+        List<Turn.Modifier> mods = turn.getMods();
+
+        String current_user = turn.getPlayerId();
+
+
 
         // sometimes the best solution is a dumb one, kiss
-        display_string = String.valueOf(shots[0]) + " " + String.valueOf(mods[0]);
-        ((TextView) findViewById(R.id.view_first_shot)).setText(display_string);
-        // eat your heart out Java types
-        display_string = String.valueOf(shots[1]) + " " + String.valueOf(mods[1]);
-        ((TextView) findViewById(R.id.view_second_shot)).setText(display_string);
-
-        display_string = String.valueOf(shots[2]) + " " + String.valueOf(mods[2]);
-        ((TextView) findViewById(R.id.view_third_shot)).setText(display_string);
-
-        doubles.setChecked(false);
-        triples.setChecked(false);
 
         local_player.setText(current_user + " " + game.getFirstPlayerScore());
         String remote_player_name = game.getCurrentPlayer();
