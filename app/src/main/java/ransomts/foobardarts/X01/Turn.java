@@ -38,6 +38,10 @@ class Turn {
         return pointTotal;
     }
 
+    public void setPointTotal(int pointTotal) {
+        this.pointTotal = pointTotal;
+    }
+
     public List<Modifier> getMods() {
         return mods;
     }
