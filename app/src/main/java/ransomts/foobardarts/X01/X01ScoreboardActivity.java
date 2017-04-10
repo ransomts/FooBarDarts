@@ -2,6 +2,7 @@ package ransomts.foobardarts.X01;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.JsonReader;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -13,6 +14,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -123,16 +128,16 @@ public class X01ScoreboardActivity extends AppCompatActivity
 
         switch (current_shot_index) {
             case 0:
-                display_string = String.valueOf(shots.get(0)) + " " + String.valueOf(mods.get(0));
+                display_string = String.valueOf(shots.get(0)) + "\n" + String.valueOf(mods.get(0));
                 ((TextView) findViewById(R.id.view_first_shot)).setText(display_string);
                 break;
             case 1:
                 // eat your heart out Java types
-                display_string = String.valueOf(shots.get(1)) + " " + String.valueOf(mods.get(1));
+                display_string = String.valueOf(shots.get(1)) + "\n" + String.valueOf(mods.get(1));
                 ((TextView) findViewById(R.id.view_second_shot)).setText(display_string);
                 break;
             case 2:
-                display_string = String.valueOf(shots.get(2)) + " " + String.valueOf(mods.get(2));
+                display_string = String.valueOf(shots.get(2)) + "\n" + String.valueOf(mods.get(2));
                 ((TextView) findViewById(R.id.view_third_shot)).setText(display_string);
                 break;
         }
@@ -208,7 +213,44 @@ public class X01ScoreboardActivity extends AppCompatActivity
         ValueEventListener turnListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                updateScoreboardFromDatabase(null);
+
+                if (dataSnapshot.child("values").getValue() == null) { return; }
+                // because fuck memory space amirite
+                long shot_a = (long) dataSnapshot.child("values").child("0").getValue();
+                int a = (int) shot_a;
+
+                long shot_b = (long) dataSnapshot.child("values").child("1").getValue();
+                int b = (int) shot_b;
+
+                long shot_c = (long) dataSnapshot.child("values").child("2").getValue();
+                int c = (int) shot_c;
+
+                // and fuck these things too >.>
+                Turn.Modifier mod_a =
+                        Turn.Modifier.valueOf(dataSnapshot.child("mods").child("0").getValue().toString());
+
+                Turn.Modifier mod_b =
+                        Turn.Modifier.valueOf(dataSnapshot.child("mods").child("1").getValue().toString());
+
+                Turn.Modifier mod_c =
+                        Turn.Modifier.valueOf(dataSnapshot.child("mods").child("2").getValue().toString());
+
+                ArrayList<Integer> shots = new ArrayList<>(3);
+                shots.add(a);
+                shots.add(b);
+                shots.add(c);
+
+                ArrayList<Turn.Modifier> mods = new ArrayList<>(3);
+                mods.add(mod_a);
+                mods.add(mod_b);
+                mods.add(mod_c);
+
+                Turn turn = new Turn(dataSnapshot.child("playerId").getValue().toString());
+                for (int i = 0; i < 3; i++) {
+                    turn.addShot(shots.get(i), mods.get(i));
+                }
+
+                updateScoreboardFromDatabase(turn);
             }
 
             @Override
@@ -223,6 +265,7 @@ public class X01ScoreboardActivity extends AppCompatActivity
     // specifically, update the visuals based on the X01 game controller a la mvc
     private void updateScoreboardFromDatabase(Turn turn) {
 
+        //if (turn == null || turn.getPlayerId().compareTo(game.getCurrentPlayer()) == 0) {
         if (turn == null) {
             return;
         }
@@ -231,12 +274,12 @@ public class X01ScoreboardActivity extends AppCompatActivity
         List<Turn.Modifier> remoteMods = turn.getMods();
 
         String display_string;
-        display_string = String.valueOf(remoteShots.get(0)) + " " + String.valueOf(remoteMods.get(0));
-        ((TextView) findViewById(R.id.view_first_shot)).setText(display_string);
-        display_string = String.valueOf(remoteShots.get(1)) + " " + String.valueOf(remoteMods.get(1));
-        ((TextView) findViewById(R.id.view_second_shot)).setText(display_string);
-        display_string = String.valueOf(remoteShots.get(2)) + " " + String.valueOf(remoteMods.get(2));
-        ((TextView) findViewById(R.id.view_third_shot)).setText(display_string);
+        display_string = String.valueOf(remoteShots.get(0)) + "\n" + String.valueOf(remoteMods.get(0));
+        ((TextView) findViewById(R.id.view_first_remote_shot)).setText(display_string);
+        display_string = String.valueOf(remoteShots.get(1)) + "\n" + String.valueOf(remoteMods.get(1));
+        ((TextView) findViewById(R.id.view_second_remote_shot)).setText(display_string);
+        display_string = String.valueOf(remoteShots.get(2)) + "\n" + String.valueOf(remoteMods.get(2));
+        ((TextView) findViewById(R.id.view_third_remote_shot)).setText(display_string);
 
         String remotePlayerName = turn.getPlayerId();
         ((TextView) findViewById(R.id.view_remote_player)).setText(remotePlayerName);
