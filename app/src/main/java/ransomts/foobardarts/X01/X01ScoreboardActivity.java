@@ -65,9 +65,6 @@ public class X01ScoreboardActivity extends AppCompatActivity
         remote_player = (TextView) findViewById(R.id.view_remote_player);
     }
 
-    private void initializeDatabaseListeners(String game_id) {
-    }
-
     void handleUndoButton() {
 
         // TODO: Be able to undo last shot of previous turn
@@ -214,43 +211,7 @@ public class X01ScoreboardActivity extends AppCompatActivity
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
-                if (dataSnapshot.child("values").getValue() == null) { return; }
-                // because fuck memory space amirite
-                long shot_a = (long) dataSnapshot.child("values").child("0").getValue();
-                int a = (int) shot_a;
-
-                long shot_b = (long) dataSnapshot.child("values").child("1").getValue();
-                int b = (int) shot_b;
-
-                long shot_c = (long) dataSnapshot.child("values").child("2").getValue();
-                int c = (int) shot_c;
-
-                // and fuck these things too >.>
-                Turn.Modifier mod_a =
-                        Turn.Modifier.valueOf(dataSnapshot.child("mods").child("0").getValue().toString());
-
-                Turn.Modifier mod_b =
-                        Turn.Modifier.valueOf(dataSnapshot.child("mods").child("1").getValue().toString());
-
-                Turn.Modifier mod_c =
-                        Turn.Modifier.valueOf(dataSnapshot.child("mods").child("2").getValue().toString());
-
-                ArrayList<Integer> shots = new ArrayList<>(3);
-                shots.add(a);
-                shots.add(b);
-                shots.add(c);
-
-                ArrayList<Turn.Modifier> mods = new ArrayList<>(3);
-                mods.add(mod_a);
-                mods.add(mod_b);
-                mods.add(mod_c);
-
-                Turn turn = new Turn(dataSnapshot.child("playerId").getValue().toString());
-                for (int i = 0; i < 3; i++) {
-                    turn.addShot(shots.get(i), mods.get(i));
-                }
-
-                updateScoreboardFromDatabase(turn);
+                handleTurnListener(dataSnapshot);
             }
 
             @Override
@@ -260,6 +221,47 @@ public class X01ScoreboardActivity extends AppCompatActivity
         };
         turnRef.addValueEventListener(turnListener);
 
+    }
+
+    private void handleTurnListener(DataSnapshot dataSnapshot) {
+
+        if (dataSnapshot.child("values").getValue() == null) { return; }
+        // because fuck memory space amirite
+        long shot_a = (long) dataSnapshot.child("values").child("0").getValue();
+        int a = (int) shot_a;
+
+        long shot_b = (long) dataSnapshot.child("values").child("1").getValue();
+        int b = (int) shot_b;
+
+        long shot_c = (long) dataSnapshot.child("values").child("2").getValue();
+        int c = (int) shot_c;
+
+        // and fuck these things too >.>
+        Turn.Modifier mod_a =
+                Turn.Modifier.valueOf(dataSnapshot.child("mods").child("0").getValue().toString());
+
+        Turn.Modifier mod_b =
+                Turn.Modifier.valueOf(dataSnapshot.child("mods").child("1").getValue().toString());
+
+        Turn.Modifier mod_c =
+                Turn.Modifier.valueOf(dataSnapshot.child("mods").child("2").getValue().toString());
+
+        ArrayList<Integer> shots = new ArrayList<>(3);
+        shots.add(a);
+        shots.add(b);
+        shots.add(c);
+
+        ArrayList<Turn.Modifier> mods = new ArrayList<>(3);
+        mods.add(mod_a);
+        mods.add(mod_b);
+        mods.add(mod_c);
+
+        Turn turn = new Turn(dataSnapshot.child("playerId").getValue().toString());
+        for (int i = 0; i < 3; i++) {
+            turn.addShot(shots.get(i), mods.get(i));
+        }
+
+        updateScoreboardFromDatabase(turn);
     }
 
     // specifically, update the visuals based on the X01 game controller a la mvc
