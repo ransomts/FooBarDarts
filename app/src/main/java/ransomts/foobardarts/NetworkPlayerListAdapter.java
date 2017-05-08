@@ -7,10 +7,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
- * Created by tim on 5/7/17.
+ * Adapter class to implement the network player view
+ * 8.5.2017
  */
 
 public class NetworkPlayerListAdapter  extends RecyclerView.Adapter<NetworkPlayerListAdapter.ViewHolder>{
@@ -23,7 +23,7 @@ public class NetworkPlayerListAdapter  extends RecyclerView.Adapter<NetworkPlaye
     // Value: Player status (true if ready)
     private ArrayList<Tuple> networkPlayers;
 
-    public NetworkPlayerListAdapter() {
+    private NetworkPlayerListAdapter() {
         networkPlayers = new ArrayList<>();
     }
 
@@ -39,8 +39,7 @@ public class NetworkPlayerListAdapter  extends RecyclerView.Adapter<NetworkPlaye
         LinearLayout b = (LinearLayout) LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.network_player_layout, parent, false);
 
-        NetworkPlayerListAdapter.ViewHolder vh = new NetworkPlayerListAdapter.ViewHolder(b);
-        return vh;
+        return new ViewHolder(b);
     }
 
     @Override
@@ -62,14 +61,14 @@ public class NetworkPlayerListAdapter  extends RecyclerView.Adapter<NetworkPlaye
         return networkPlayers.size();
     }
 
-    public class ViewHolder extends  RecyclerView.ViewHolder {
+    class ViewHolder extends  RecyclerView.ViewHolder {
 
-        public LinearLayout mLinearLayout;
-        public TextView playerName;
-        public TextView playerStatus;
-        private String TAG = "NETWORK.PLAYER.VIEWHOLDER";
+        LinearLayout mLinearLayout;
+        TextView playerName;
+        TextView playerStatus;
+        //private String TAG = "NETWORK.PLAYER.VIEWHOLDER";
 
-        public ViewHolder(LinearLayout linearLayout) {
+        ViewHolder(LinearLayout linearLayout) {
             super(linearLayout);
             mLinearLayout = linearLayout;
             playerName = (TextView) mLinearLayout.getChildAt(0);

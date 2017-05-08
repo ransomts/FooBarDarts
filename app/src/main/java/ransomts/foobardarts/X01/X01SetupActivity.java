@@ -1,44 +1,28 @@
 package ransomts.foobardarts.X01;
 
 import android.app.AlertDialog;
-import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.DataSetObserver;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ExpandableListAdapter;
-import android.widget.ExpandableListView;
-import android.widget.ListAdapter;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import com.firebase.ui.database.FirebaseListAdapter;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import ransomts.foobardarts.DartDb;
 
 import ransomts.foobardarts.NetworkPlayerListAdapter;
 import ransomts.foobardarts.R;
@@ -59,6 +43,7 @@ public class X01SetupActivity extends AppCompatActivity
     boolean double_in;
     boolean double_out;
     int score_goal;
+    String currentUser = "Ziltoid";
 
     String game_id;
     DatabaseReference game_reference;
@@ -70,23 +55,20 @@ public class X01SetupActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_x01_setup);
 
-        List<String> x01_score_goals = new ArrayList<String>();
-        x01_score_goals.add("301");
-        x01_score_goals.add("501");
-        x01_score_goals.add("701");
-        x01_score_goals.add("1001");
-
         game_id = null;
 
+        if (FirebaseAuth.getInstance().getCurrentUser() != null){
+            currentUser = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+        }
+
         // Set up the recycle list and it's adapter which we notify to update list
-        player_list = new ArrayList<Tuple>();
+        player_list = new ArrayList<>();
         networkPlayerView = (RecyclerView) findViewById(R.id.network_players_view);
         networkPlayerListAdapter = new NetworkPlayerListAdapter(player_list);
 
         // use a linear layout manager
         networkPlayersLM = new LinearLayoutManager(this);
         networkPlayerView.setLayoutManager(networkPlayersLM);
-
         networkPlayerView.setAdapter(networkPlayerListAdapter);
 
         score_goal_spinner = (Spinner) findViewById(R.id.spinner_score_goal);
@@ -94,25 +76,6 @@ public class X01SetupActivity extends AppCompatActivity
         double_out_toggle = (CheckBox) findViewById(R.id.checkbox_double_out);
 
         game_reference = FirebaseDatabase.getInstance().getReference().child("game");
-    }
-
-    private void setup_network_database_listeners() {
-
-        //ExpandableListView net_players_list = (ExpandableListView) findViewById(R.id.x01_players_list);
-        DatabaseReference ready_players_entry = game_reference.child("ready_to_start");
-
-        FirebaseListAdapter net_players_adapter = new FirebaseListAdapter<PlayersReady>(this,
-                PlayersReady.class, R.layout.network_player_layout, ready_players_entry) {
-            @Override
-            protected void populateView(View v, PlayersReady playersReady, int position) {
-                TextView player_id = (TextView) findViewById(R.id.net_player_id);
-                TextView player_status = (TextView) findViewById(R.id.net_player_status);
-
-                player_id.setText(playersReady.getPlayersReady().toString());
-                player_status.setText("status");
-            }
-        };
-        //net_players_list.setAdapter(net_players_adapter);
     }
 
     void pullParameters() {
@@ -143,8 +106,7 @@ public class X01SetupActivity extends AppCompatActivity
 
         ask_for_network_game_id();
 
-        String userName = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
-        player_list.add(new Tuple(userName, false));
+        player_list.add(new Tuple(currentUser, false));
     }
 
     private void ask_for_network_game_id() {
@@ -178,7 +140,6 @@ public class X01SetupActivity extends AppCompatActivity
 
         // Update the database entry for the current user with an initial "not ready"
         // Put a listener on the toggle button to update database when it's hit
-        final String currentUser = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
         final DatabaseReference current_user_ref = game_reference.child("ready_to_start").child(currentUser);
         current_user_ref.setValue(false);
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
