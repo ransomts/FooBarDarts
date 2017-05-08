@@ -39,7 +39,7 @@ public class X01SetupActivity extends AppCompatActivity
     RecyclerView.LayoutManager networkPlayersLM;
     NetworkPlayerListAdapter networkPlayerListAdapter;
 
-    ArrayList<Tuple> player_list;
+    ArrayList<Tuple<String, Boolean>> player_list;
     boolean double_in;
     boolean double_out;
     int score_goal;
@@ -106,7 +106,7 @@ public class X01SetupActivity extends AppCompatActivity
 
         ask_for_network_game_id();
 
-        player_list.add(new Tuple(currentUser, false));
+        player_list.add(new Tuple<>(currentUser, false));
     }
 
     private void ask_for_network_game_id() {
@@ -156,7 +156,7 @@ public class X01SetupActivity extends AppCompatActivity
                 boolean dataSetChanged = false;
 
                 for (DataSnapshot child : dataSnapshot.getChildren()) {
-                    Tuple user = new Tuple(child.getKey(), child.getValue());
+                    Tuple<String, Boolean> user = new Tuple<>(child.getKey(), (Boolean)child.getValue());
 
                     int index = userExistsInPlayerList(user);
                     if (index == -1) {

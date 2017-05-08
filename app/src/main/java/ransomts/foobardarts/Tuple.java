@@ -4,11 +4,11 @@ package ransomts.foobardarts;
  * Created by tim on 5/7/17.
  */
 
-public class Tuple {
-    Object a;
-    Object b;
+public class Tuple<L, R> {
+    L a;
+    R b;
 
-    public Tuple(Object a, Object b) {
+    public Tuple(L a, R b) {
         setA(a);
         setB(b);
     }
@@ -18,19 +18,19 @@ public class Tuple {
         this.b = null;
     }
 
-    public Object getA() {
+    public L getA() {
         return a;
     }
 
-    public Object getB() {
+    public R getB() {
         return b;
     }
 
-    public void setA(Object a) {
+    public void setA(L a) {
         this.a = a;
     }
 
-    public void setB(Object b) {
+    public void setB(R b) {
         this.b = b;
     }
 }

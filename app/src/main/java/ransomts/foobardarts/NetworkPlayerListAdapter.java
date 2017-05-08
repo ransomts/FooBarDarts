@@ -21,13 +21,13 @@ public class NetworkPlayerListAdapter  extends RecyclerView.Adapter<NetworkPlaye
     // Value: HashMap
     // Key: Player name
     // Value: Player status (true if ready)
-    private ArrayList<Tuple> networkPlayers;
+    private ArrayList<Tuple<String, Boolean>> networkPlayers;
 
     private NetworkPlayerListAdapter() {
         networkPlayers = new ArrayList<>();
     }
 
-    public NetworkPlayerListAdapter(ArrayList<Tuple> networkPlayers) {
+    public NetworkPlayerListAdapter(ArrayList<Tuple<String, Boolean>> networkPlayers) {
         this();
         this.networkPlayers = networkPlayers;
     }
