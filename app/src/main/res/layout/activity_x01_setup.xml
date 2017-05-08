@@ -7,6 +7,7 @@
     tools:context="ransomts.foobardarts.X01.X01SetupActivity">
 
     <LinearLayout
+        android:id="@+id/x01_main_layout"
         android:layout_width="0dp"
         android:layout_height="587dp"
         android:layout_marginLeft="8dp"
@@ -65,16 +66,20 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:onClick="onClick"
-                android:text="Join \nNetwork Game" />
+                android:text="Start \nNetwork Game" />
 
-            <Button
+            <ToggleButton
+                android:enabled="false"
                 android:id="@+id/button_join_network_game"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:onClick="onClick"
-                android:text="Start \nNetwork Game" />
+                android:checked="false"
+                android:text="Ready To Start \nNetwork Game"
+                android:textOff="Ready To Start \n Network Game"
+                android:textOn="Ready To Start \n Network Game" />
 
             <Button
+                android:enabled="false"
                 android:id="@+id/button_local_game"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -83,10 +88,12 @@
 
         </LinearLayout>
 
-        <ExpandableListView
-            android:id="@+id/x01_players_list"
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/network_players_view"
+            tools:listitem="@layout/network_player_layout"
+            android:scrollbars="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="wrap_content" />
 
     </LinearLayout>
 

@@ -31,15 +31,6 @@
             android:label="@string/account_settings"
             android:parentActivityName=".StartupScreenActivity" />
         <activity android:name=".UtilityScreenActivity" />
-        <service
-            android:name=".MessagingService">
-        <intent-filter>
-            <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
-        </intent-filter>
-
-        android:name=".MessagingService"
-            android:enabled="true"
-            android:exported="true"></service>
     </application>
 
 </manifest>

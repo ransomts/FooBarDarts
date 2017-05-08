@@ -20,7 +20,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-class X01_game {
+class X01_game extends Game{
 
     private DatabaseReference game_ref;
     private String game_id;

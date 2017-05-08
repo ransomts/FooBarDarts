@@ -43,7 +43,9 @@ public class UtilityScreenActivity extends AppCompatActivity
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 TextView status = (TextView) findViewById(R.id.utility_textView);
-                status.setText(dataSnapshot.getValue().toString());
+                if (dataSnapshot.getValue() != null) {
+                    status.setText(dataSnapshot.getValue().toString());
+                }
             }
 
             @Override
