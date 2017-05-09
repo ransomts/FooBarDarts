@@ -1,7 +1,9 @@
 package ransomts.foobardarts;
 
+import java.util.HashMap;
+
 /**
- * Created by tim on 5/7/17.
+ * Java doesn't have a Tuple class for some reason, yay!!!
  */
 
 public class Tuple<L, R> {
@@ -13,9 +15,11 @@ public class Tuple<L, R> {
         setB(b);
     }
 
-    public Tuple() {
-        this.a = null;
-        this.b = null;
+    public Tuple(HashMap<L, R> hashMap) {
+        for (L left : hashMap.keySet()) {
+            setA(left);
+            setB(hashMap.get(getA()));
+        }
     }
 
     public L getA() {
@@ -32,5 +36,11 @@ public class Tuple<L, R> {
 
     public void setB(R b) {
         this.b = b;
+    }
+
+    public HashMap<L, R> toHashMap() {
+        HashMap<L, R> temp = new HashMap<>(1);
+        temp.put(a,b);
+        return temp;
     }
 }

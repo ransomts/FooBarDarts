@@ -105,8 +105,6 @@ public class X01SetupActivity extends AppCompatActivity
     public void start_network_game() {
 
         ask_for_network_game_id();
-
-        player_list.add(new Tuple<>(currentUser, false));
     }
 
     private void ask_for_network_game_id() {
@@ -118,6 +116,7 @@ public class X01SetupActivity extends AppCompatActivity
                 .setPositiveButton("Start Game", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         game_id = textBox.getText().toString();
+                        player_list.add(new Tuple<>(currentUser, false));
                         setup_network_game_ready();
                     }
                 })
