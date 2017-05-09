@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 
 import ransomts.foobardarts.NetworkPlayerListAdapter;
 import ransomts.foobardarts.R;
+import ransomts.foobardarts.StartupScreenActivity;
 import ransomts.foobardarts.Tuple;
 
 public class X01SetupActivity extends AppCompatActivity
@@ -54,6 +56,9 @@ public class X01SetupActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_x01_setup);
+        if(getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         game_id = null;
 
@@ -201,5 +206,19 @@ public class X01SetupActivity extends AppCompatActivity
                 start_network_game();
                 break;
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                Intent intent = new Intent(this, StartupScreenActivity.class);
+                startActivity(intent);
+                // TODO: this is the better way, but it minimizes the application?
+                //NavUtils.navigateUpFromSameTask(this);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
