@@ -105,13 +105,6 @@ public class X01SetupActivity extends AppCompatActivity
         finish();
     }
 
-    // Starts the network game sequence
-    // First, ask for the game id to connect to the game entry in the database
-    public void start_network_game() {
-
-        ask_for_network_game_id();
-    }
-
     private void ask_for_network_game_id() {
         final EditText textBox = new EditText(this);
         new AlertDialog.Builder(this)
@@ -158,6 +151,7 @@ public class X01SetupActivity extends AppCompatActivity
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // todo: Update network players list to reflect dataSnapshot
                 boolean dataSetChanged = false;
+                boolean allReady = true;
 
                 for (DataSnapshot child : dataSnapshot.getChildren()) {
                     Tuple<String, Boolean> user = new Tuple<>(child.getKey(), (Boolean)child.getValue());
@@ -171,9 +165,17 @@ public class X01SetupActivity extends AppCompatActivity
                         player_list.add(user);
                         dataSetChanged = true;
                     }
+
+                    if (!user.getB()) {
+                        allReady = false;
+                    }
                 }
                 if (dataSetChanged) {
                     networkPlayerListAdapter.notifyDataSetChanged();
+                    // Maybe put in some sort of countdown animation here?
+                    if (allReady) {
+                        start_network_game();
+                    }
                 }
             }
 
@@ -184,6 +186,11 @@ public class X01SetupActivity extends AppCompatActivity
         });
 
         //setup_network_database_listeners();
+    }
+
+    private void start_network_game() {
+        // Handle database management
+        //
     }
 
     private int userExistsInPlayerList(Tuple user) {
@@ -203,7 +210,7 @@ public class X01SetupActivity extends AppCompatActivity
                 begin_local_game();
                 break;
             case R.id.button_start_network_game:
-                start_network_game();
+                ask_for_network_game_id();
                 break;
         }
     }
