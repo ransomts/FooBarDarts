@@ -30,58 +30,58 @@ class Game {
         setMostRecentTurn(mostRecentTurn);
     }
 
+    // game identifier for the games node in the database
     public void setGameId(String gameId) {
         this.gameId = gameId;
     }
-
     public String getGameId() {
         return gameId;
     }
 
+    // Time that the game began play
     public void setStartTime(Date startTime) {
         this.startTime = startTime;
     }
-
     public Date getStartTime() {
         return startTime;
     }
 
+    // User id of the winner of the game
     public void setWinner(String winner) {
         this.winner = winner;
     }
-
     public String getWinner() {
         return winner;
     }
 
+    // ArrayList of the players ids who are involved in a game
     public void setPlayers(ArrayList<String> players) {
         this.players = players;
     }
-
     public ArrayList<String> getPlayers() {
         return players;
     }
 
+    // Used when setting up the game in the notStarted node in the database
     public void setPlayersReady(PlayersReady playersReady) {
         this.playersReady = playersReady;
     }
-
     public PlayersReady getPlayersReady() {
         return playersReady;
     }
 
+    // The list of turns in the game
     public void setTurns(ArrayList<Turn> turns) {
         this.turns = turns;
     }
-
     public ArrayList<Turn> getTurns() {
         return turns;
     }
 
+    // Maybe this one isn't needed?
     public void setMostRecentTurn(Turn mostRecentTurn) {
         this.mostRecentTurn = mostRecentTurn;
     }
-
     public Turn getMostRecentTurn() {
         return mostRecentTurn;
     }

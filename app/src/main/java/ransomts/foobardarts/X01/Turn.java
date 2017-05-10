@@ -55,6 +55,8 @@ class Turn {
     }
 
     void addShot(int value, Modifier mod) {
+
+        // should never happen, but no triple bulls and no more than three shots per turn
         if (value == 25 && mod == Modifier.Triple || values.size() > 3) {
             values.add(0);
             mods.add(Modifier.Single);
