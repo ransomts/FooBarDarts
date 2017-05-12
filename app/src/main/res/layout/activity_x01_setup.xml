@@ -74,6 +74,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:checked="false"
+                android:onClick="onClick"
                 android:text="Ready To Start \nNetwork Game"
                 android:textOff="Ready To Start \n Network Game"
                 android:textOn="Ready To Start \n Network Game" />
