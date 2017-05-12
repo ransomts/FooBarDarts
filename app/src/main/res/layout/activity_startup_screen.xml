@@ -34,13 +34,15 @@
             android:onClick="onClick"
             android:text="@string/play_cricket"
             tools:layout_editor_absoluteX="0dp"
-            tools:layout_editor_absoluteY="0dp" />
+            tools:layout_editor_absoluteY="0dp"
+            android:enabled="false"/>
 
         <Button
             android:id="@+id/play_other_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:onClick="onClick"
+            android:enabled="false"
             android:text="@string/play_other"
             tools:layout_editor_absoluteX="0dp"
             tools:layout_editor_absoluteY="0dp" />
