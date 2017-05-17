@@ -177,8 +177,9 @@ abstract class Game implements Parcelable {
     public String addTurn(Turn turn) {
         updateScore(turn); // update the local scores
         // push turn to database
-        //gameRef.child("turns").setValue(getTurns());
-        //gameRef.child("currentScores").setValue(currentScores);
+        DatabaseReference gameRef = FirebaseDatabase.getInstance().getReference().child("games").child(getState()).child(getGameId());
+        gameRef.child("turns").setValue(getTurns());
+        gameRef.child("currentScores").setValue(currentScores);
         return winConditionMet();
     }
 

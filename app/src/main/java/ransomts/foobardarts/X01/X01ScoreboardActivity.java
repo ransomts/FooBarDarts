@@ -35,6 +35,7 @@ public class X01ScoreboardActivity extends AppCompatActivity
         localPlayerName = getIntent().getStringExtra("localPlayerName");
 
         turn = new Turn(localPlayerName);
+        shotModifier = Turn.Modifier.Single;
 
         doubles = (ToggleButton) findViewById(R.id.toggle_double);
         triples = (ToggleButton) findViewById(R.id.toggle_triple);
@@ -45,15 +46,17 @@ public class X01ScoreboardActivity extends AppCompatActivity
 
     void handleShotValues(int shotValue) {
 
-        //handleModifiers(findViewById(R.id.button0));
-        update_local_values(turn);
-
+        // keep track of the shots as they are being entered
         turn.addShot(shotValue, shotModifier);
-
+        // update the visuals on the devices as the player is shooting
+        updateLocalScoreboard(turn);
+        // post the turn to the database when the turn is finished
         if (turn.getShotsTaken() == turn.getShotsPerTurn()) {
             game.addTurn(turn);
             turn = new Turn(localPlayerName);
         }
+        // reset the modifier back to a single no matter what happens
+        shotModifier = Turn.Modifier.Single;
     }
 
     private void handleModifiers(View v) {
@@ -86,21 +89,28 @@ public class X01ScoreboardActivity extends AppCompatActivity
         }
     }
 
-    private void update_local_values(Turn turn) {
+    private void updateLocalScoreboard(Turn turn) {
 
         String display_string;
+
+        TextView[] textViews = {
+                ((TextView) findViewById(R.id.view_first_local_shot)),
+                ((TextView) findViewById(R.id.view_second_local_shot)),
+                ((TextView) findViewById(R.id.view_third_local_shot))
+        };
 
         for (int i = 0; i < turn.getShotsTaken(); i++) {
             display_string = String.valueOf(turn.getValues().get(i)) + "\n" +
                     String.valueOf(turn.getMods().get(i));
-
-            ((TextView) findViewById(R.id.view_first_shot)).setText(display_string);
+            textViews[i].setText(display_string);
         }
         doubles.setChecked(false);
         triples.setChecked(false);
     }
 
     // specifically, update the visuals based on the X01 game controller a la mvc
+    // used to update the scoreboard of a remote player, to update a local display (before posting the turn)
+    // use updateLocalScoreboard
     private void notifyScoreboard(Turn turn) {
 
         if (turn.getPlayerId().equals(localPlayerName)) {
@@ -111,15 +121,20 @@ public class X01ScoreboardActivity extends AppCompatActivity
         List<Integer> remoteShots = turn.getValues();
         List<Turn.Modifier> remoteMods = turn.getMods();
 
-        String display_string;
-        display_string = String.valueOf(remoteShots.get(0)) + "\n" + String.valueOf(remoteMods.get(0));
-        ((TextView) findViewById(R.id.view_first_remote_shot)).setText(display_string);
+        TextView[] textViews = {
+                ((TextView) findViewById(R.id.view_first_remote_shot)),
+                ((TextView) findViewById(R.id.view_second_remote_shot)),
+                ((TextView) findViewById(R.id.view_third_remote_shot))
+        };
 
-        display_string = String.valueOf(remoteShots.get(1)) + "\n" + String.valueOf(remoteMods.get(1));
-        ((TextView) findViewById(R.id.view_second_remote_shot)).setText(display_string);
+        String[] displayStrings = {
+                String.valueOf(remoteShots.get(0)) + "\n" + String.valueOf(remoteMods.get(0)),
+                String.valueOf(remoteShots.get(1)) + "\n" + String.valueOf(remoteMods.get(1)),
+                String.valueOf(remoteShots.get(2)) + "\n" + String.valueOf(remoteMods.get(2))};
 
-        display_string = String.valueOf(remoteShots.get(2)) + "\n" + String.valueOf(remoteMods.get(2));
-        ((TextView) findViewById(R.id.view_third_remote_shot)).setText(display_string);
+        for (int i = 0; i < remoteShots.size(); i++) {
+            textViews[i].setText(displayStrings[i]);
+        }
 
         String remotePlayerName = turn.getPlayerId();
         ((TextView) findViewById(R.id.view_remote_player)).setText(remotePlayerName);
