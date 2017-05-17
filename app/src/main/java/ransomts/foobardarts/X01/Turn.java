@@ -6,17 +6,21 @@ package ransomts.foobardarts.X01;
   Java object to model one dart turn in any game
  */
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 import java.util.List;
 
-class Turn {
+class Turn implements Parcelable {
 
     enum Modifier {Single, Double, Triple}
 
+    private int pointTotal;
+    private int shotsPerTurn;
     private String playerId;
     private List<Integer> values;
     private List<Modifier> mods;
-    private int pointTotal;
 
     Turn() {
         this("Ziltoid", 3);
@@ -26,17 +30,20 @@ class Turn {
         this(playerId, 3);
     }
 
-    Turn(String playerId, int shots_per_turn) {
+    Turn(String playerId, int shotsPerTurn) {
 
-        values = new ArrayList<>(shots_per_turn);
-        mods = new ArrayList<>(shots_per_turn);
         this.playerId = playerId;
+        this.shotsPerTurn = shotsPerTurn;
+        values = new ArrayList<>(shotsPerTurn);
+        mods = new ArrayList<>(shotsPerTurn);
     }
 
     // these say they're unused but the database uses them to parse into the json format
     public int getPointTotal() {
         return pointTotal;
     }
+
+    public int getShotsTaken() { return getValues().size(); }
 
     public void setPointTotal(int pointTotal) {
         this.pointTotal = pointTotal;
@@ -52,6 +59,10 @@ class Turn {
 
     public String getPlayerId() {
         return playerId;
+    }
+
+    public int getShotsPerTurn() {
+        return shotsPerTurn;
     }
 
     void addShot(int value, Modifier mod) {
@@ -77,4 +88,44 @@ class Turn {
         values.remove(values.size() - 1);
         mods.remove(mods.size() - 1);
     }
+
+    public boolean lastShotIsDouble() {
+        return mods.get(mods.size()) == Modifier.Double;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.pointTotal);
+        dest.writeInt(this.shotsPerTurn);
+        dest.writeString(this.playerId);
+        dest.writeList(this.values);
+        dest.writeList(this.mods);
+    }
+
+    protected Turn(Parcel in) {
+        this.pointTotal = in.readInt();
+        this.shotsPerTurn = in.readInt();
+        this.playerId = in.readString();
+        this.values = new ArrayList<Integer>();
+        in.readList(this.values, Integer.class.getClassLoader());
+        this.mods = new ArrayList<Modifier>();
+        in.readList(this.mods, Modifier.class.getClassLoader());
+    }
+
+    public static final Parcelable.Creator<Turn> CREATOR = new Parcelable.Creator<Turn>() {
+        @Override
+        public Turn createFromParcel(Parcel source) {
+            return new Turn(source);
+        }
+
+        @Override
+        public Turn[] newArray(int size) {
+            return new Turn[size];
+        }
+    };
 }
