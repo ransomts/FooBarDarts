@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.ToggleButton;
@@ -24,6 +23,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
 
 import ransomts.foobardarts.NetworkPlayerListAdapter;
 import ransomts.foobardarts.R;
@@ -33,24 +34,30 @@ import ransomts.foobardarts.Tuple;
 public class X01SetupActivity extends AppCompatActivity
         implements View.OnClickListener {
 
-    Spinner score_goal_spinner;
+    Spinner scoreGoalSpinner;
 
-    CheckBox double_in_toggle;
-    CheckBox double_out_toggle;
+    CheckBox doubleInToggle;
+    CheckBox doubleOutToggle;
     RecyclerView networkPlayerView;
     RecyclerView.LayoutManager networkPlayersLM;
     NetworkPlayerListAdapter networkPlayerListAdapter;
 
-    ArrayList<Tuple<String, Boolean>> player_list;
-    boolean double_in;
-    boolean double_out;
-    int score_goal;
+    ArrayList<Tuple<String, Boolean>> playersReadyList;
+    PlayersReady playerList;
+    boolean doubleIn;
+    boolean doubleOut;
+    int scoreGoal;
     String currentUser = "Ziltoid";
 
     String game_id;
-    DatabaseReference game_reference;
+
+    X01_game game;
 
     private String TAG = "X01SetupActivity";
+    private DatabaseReference gameReference;
+
+    public X01SetupActivity() {
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,40 +74,38 @@ public class X01SetupActivity extends AppCompatActivity
         }
 
         // Set up the recycle list and it's adapter which we notify to update list
-        player_list = new ArrayList<>();
+        playerList = new PlayersReady();
+        playersReadyList = new ArrayList<>();
         networkPlayerView = (RecyclerView) findViewById(R.id.network_players_view);
-        networkPlayerListAdapter = new NetworkPlayerListAdapter(player_list);
+        networkPlayerListAdapter = new NetworkPlayerListAdapter(playersReadyList);
 
         // use a linear layout manager
         networkPlayersLM = new LinearLayoutManager(this);
         networkPlayerView.setLayoutManager(networkPlayersLM);
         networkPlayerView.setAdapter(networkPlayerListAdapter);
 
-        score_goal_spinner = (Spinner) findViewById(R.id.spinner_score_goal);
-        double_in_toggle = (CheckBox) findViewById(R.id.checkbox_double_in);
-        double_out_toggle = (CheckBox) findViewById(R.id.checkbox_double_out);
+        scoreGoalSpinner = (Spinner) findViewById(R.id.spinner_score_goal);
+        doubleInToggle = (CheckBox) findViewById(R.id.checkbox_double_in);
+        doubleOutToggle = (CheckBox) findViewById(R.id.checkbox_double_out);
 
-        game_reference = FirebaseDatabase.getInstance().getReference().child("game");
+        gameReference = FirebaseDatabase.getInstance().getReference().child("games").child("notStarted");
     }
 
-    void pullParameters() {
-        double_in = double_in_toggle.isChecked();
-        double_out = double_out_toggle.isChecked();
+    public void pullGameParametersFromActivity() {
+        doubleIn = doubleInToggle.isChecked();
+        doubleOut = doubleOutToggle.isChecked();
 
         // ehhh this one felt bad
-        score_goal = Integer.valueOf(score_goal_spinner.getSelectedItem().toString());
+        scoreGoal = Integer.valueOf(scoreGoalSpinner.getSelectedItem().toString());
 
-        // TODO: pull a list of players from the expanding list
     }
 
-    public void begin_local_game() {
+    public void startGame() {
         Intent intent = new Intent(this, X01ScoreboardActivity.class);
-        pullParameters();
-        intent.putExtra("game_id", "local_game");
-        intent.putExtra("double_in", double_in);
-        intent.putExtra("double_out", double_out);
-        intent.putExtra("score_goal", score_goal);
-        intent.putExtra("players", player_list.toArray());
+
+        game.setStartTime(Calendar.getInstance().getTime());
+        intent.putExtra("game", game);
+        intent.putExtra("localPlayerName", currentUser);
         startActivity(intent);
         finish();
     }
@@ -114,7 +119,7 @@ public class X01SetupActivity extends AppCompatActivity
                 .setPositiveButton("Start Game", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         game_id = textBox.getText().toString();
-                        player_list.add(new Tuple<>(currentUser, false));
+                        playerList.addPlayer(currentUser);
                         setup_network_game_ready();
                     }
                 })
@@ -133,50 +138,38 @@ public class X01SetupActivity extends AppCompatActivity
         toggle.setChecked(false);
 
         // Point the reference to the specified game
-        game_reference = game_reference.child(game_id);
+        gameReference = gameReference.child(game_id);
 
-        // Update the database entry for the current user with an initial "not ready"
-        // Put a listener on the toggle button to update database when it's hit
-        final DatabaseReference current_user_ref = game_reference.child("ready_to_start").child(currentUser);
-        current_user_ref.setValue(false);
-        toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                current_user_ref.setValue(isChecked);
-            }
-        });
+        pullGameParametersFromActivity();
+
+        game = new X01_game(
+                Integer.valueOf(scoreGoalSpinner.getSelectedItem().toString()),
+                doubleInToggle.isChecked(),
+                doubleOutToggle.isChecked(),
+                game_id,
+                playerList);
 
         // Update the list of network players to reflect the ready_to_start node in the database
-        game_reference.child("ready_to_start").addValueEventListener(new ValueEventListener() {
+        gameReference.child("playersReady").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                // todo: Update network players list to reflect dataSnapshot
-                boolean dataSetChanged = false;
-                boolean allReady = true;
 
-                for (DataSnapshot child : dataSnapshot.getChildren()) {
-                    Tuple<String, Boolean> user = new Tuple<>(child.getKey(), (Boolean)child.getValue());
+                PlayersReady playersReady = dataSnapshot.getValue(PlayersReady.class);
 
-                    int index = userExistsInPlayerList(user);
-                    if (index == -1) {
-                        player_list.add(user);
-                        dataSetChanged = true;
+                game.setPlayersReady(playersReady);
+
+                if (playersReady != null) {
+                    if (playersReady.allPlayersReady()) {
+                        Log.i(TAG, "Starting Scoreboard Activity");
+                        setPlayersReady(playersReady);
+                        networkPlayerListAdapter.notifyDataSetChanged();
+                        startGame();
                     } else {
-                        player_list.remove(index);
-                        player_list.add(user);
-                        dataSetChanged = true;
+                        setPlayersReady(playersReady);
+                        networkPlayerListAdapter.notifyDataSetChanged();
                     }
+                }
 
-                    if (!user.getB()) {
-                        allReady = false;
-                    }
-                }
-                if (dataSetChanged) {
-                    networkPlayerListAdapter.notifyDataSetChanged();
-                    // Maybe put in some sort of countdown animation here?
-                    if (allReady) {
-                        start_network_game();
-                    }
-                }
             }
 
             @Override
@@ -185,29 +178,21 @@ public class X01SetupActivity extends AppCompatActivity
             }
         });
 
-        //setup_network_database_listeners();
-    }
+        gameReference.setValue(game);
 
-    private void start_network_game() {
-        // Handle database management
-        //
-    }
-
-    private int userExistsInPlayerList(Tuple user) {
-        for (int i = 0; i < player_list.size(); i++) {
-            if (player_list.get(i).getA().equals(user.getA())) {
-                return i;
-            }
-        }
-        return -1;
     }
 
     @Override
     public void onClick(View v) {
 
         switch (v.getId()) {
+            case R.id.button_join_network_game:
+                ToggleButton tb = (ToggleButton) findViewById(R.id.button_join_network_game);
+                playerList.updatePlayerStatus(currentUser, tb.isChecked());
+                gameReference.child("playersReady").setValue(playerList);
+                break;
             case R.id.button_local_game:
-                begin_local_game();
+                startGame();
                 break;
             case R.id.button_start_network_game:
                 ask_for_network_game_id();
@@ -227,5 +212,16 @@ public class X01SetupActivity extends AppCompatActivity
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void setPlayersReady(PlayersReady playersReady) {
+
+        HashMap<String, Boolean> networkPlayersMap = playersReady.getPlayersReady();
+        playersReadyList.clear();
+        for (String player : networkPlayersMap.keySet()) {
+            Tuple playerStatus = new Tuple(player, networkPlayersMap.get(player));
+            playersReadyList.add(playerStatus);
+        }
+
     }
 }
