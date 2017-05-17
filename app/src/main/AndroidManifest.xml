@@ -28,7 +28,6 @@
             android:name=".AccountScreenActivity"
             android:label="@string/account_settings"
             android:parentActivityName=".StartupScreenActivity" />
-        <activity android:name=".UtilityScreenActivity" />
     </application>
 
 </manifest>

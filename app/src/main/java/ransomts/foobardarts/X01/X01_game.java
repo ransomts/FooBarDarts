@@ -50,6 +50,7 @@ class X01_game extends Game {
             for (String playerId : getCurrentScores().keySet()) {
                 if (getCurrentScores().get(playerId) == 0) {
                     setEndTime(Calendar.getInstance().getTime());
+                    //moveGameForward();
                     return playerId;
                 }
             }

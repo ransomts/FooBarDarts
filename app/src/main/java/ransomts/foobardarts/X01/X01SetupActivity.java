@@ -87,8 +87,6 @@ public class X01SetupActivity extends AppCompatActivity
         scoreGoalSpinner = (Spinner) findViewById(R.id.spinner_score_goal);
         doubleInToggle = (CheckBox) findViewById(R.id.checkbox_double_in);
         doubleOutToggle = (CheckBox) findViewById(R.id.checkbox_double_out);
-
-        gameReference = FirebaseDatabase.getInstance().getReference().child("games").child("notStarted");
     }
 
     public void pullGameParametersFromActivity() {
@@ -104,6 +102,8 @@ public class X01SetupActivity extends AppCompatActivity
         Intent intent = new Intent(this, X01ScoreboardActivity.class);
 
         game.setStartTime(Calendar.getInstance().getTime());
+        game.moveGameForward();
+
         intent.putExtra("game", game);
         intent.putExtra("localPlayerName", currentUser);
         startActivity(intent);
@@ -137,9 +137,6 @@ public class X01SetupActivity extends AppCompatActivity
         toggle.setEnabled(true);
         toggle.setChecked(false);
 
-        // Point the reference to the specified game
-        gameReference = gameReference.child(game_id);
-
         pullGameParametersFromActivity();
 
         game = new X01_game(
@@ -149,6 +146,8 @@ public class X01SetupActivity extends AppCompatActivity
                 game_id,
                 playerList);
 
+        gameReference = FirebaseDatabase.getInstance().getReference().child("games").child(game.getState()).child(game.getGameId());
+        gameReference.setValue(game);
         // Update the list of network players to reflect the ready_to_start node in the database
         gameReference.child("playersReady").addValueEventListener(new ValueEventListener() {
             @Override
@@ -169,7 +168,6 @@ public class X01SetupActivity extends AppCompatActivity
                         networkPlayerListAdapter.notifyDataSetChanged();
                     }
                 }
-
             }
 
             @Override
@@ -177,9 +175,7 @@ public class X01SetupActivity extends AppCompatActivity
                 Log.v(TAG, "Updating network player list failed");
             }
         });
-
-        gameReference.setValue(game);
-
+        //*/
     }
 
     @Override

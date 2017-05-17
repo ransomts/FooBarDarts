@@ -37,9 +37,6 @@ public class StartupScreenActivity extends AppCompatActivity
             case R.id.account_settings_button:
                 intent = new Intent(this, AccountScreenActivity.class);
                 break;
-            case R.id.utility_page_button:
-                intent = new Intent(this, UtilityScreenActivity.class);
-                break;
         }
         if (intent != null) {
             startActivity(intent);

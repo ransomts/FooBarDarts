@@ -14,6 +14,7 @@ import ransomts.foobardarts.R;
 public class X01ScoreboardActivity extends AppCompatActivity
         implements View.OnClickListener {
 
+    // The game that the turn will be added to
     X01_game game;
     // The turn that this activity is constructing
     Turn turn;
@@ -44,7 +45,7 @@ public class X01ScoreboardActivity extends AppCompatActivity
 
     void handleShotValues(int shotValue) {
 
-        handleModifiers(findViewById(R.id.button0));
+        //handleModifiers(findViewById(R.id.button0));
         update_local_values(turn);
 
         turn.addShot(shotValue, shotModifier);
