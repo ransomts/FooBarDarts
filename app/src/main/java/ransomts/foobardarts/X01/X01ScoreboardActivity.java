@@ -11,8 +11,10 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,13 +57,15 @@ public class X01ScoreboardActivity extends AppCompatActivity
         remoteTurns.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                /*
-                ArrayList turns = dataSnapshot.getValue(ArrayList.class);
-                Turn latestTurn = (Turn) turns.get(turns.size()-1);
+
+                // TODO: this is broke as shit
+                GenericTypeIndicator<ArrayList<Turn>> t = new GenericTypeIndicator<ArrayList<Turn>>() {};
+                ArrayList<Turn> turns = dataSnapshot.getValue(t);
+                Turn latestTurn = turns.get(turns.size()-1);
                 if (!turn.getPlayerId().equals(localPlayerName)) {
                     notifyScoreboard(turn);
                 }
-                */
+
             }
 
             @Override
@@ -88,7 +92,6 @@ public class X01ScoreboardActivity extends AppCompatActivity
 
     private void handleModifiers(View v) {
         switch (v.getId()) {
-            // TODO: Can these if statements be reduced logically?
             // Double Button was hit
             case R.id.toggle_double:
                 // is it now checked?
@@ -204,7 +207,6 @@ public class X01ScoreboardActivity extends AppCompatActivity
             case R.id.buttonBull:
                 handleShotValues(25);
                 break;
-            // TODO: Undo button showing some runtime logic errors
             case R.id.buttonUndo:
                 turn.removeShot();
                 updateLocalScoreboard(turn);

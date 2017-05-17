@@ -235,7 +235,7 @@ public class X01SetupActivity extends AppCompatActivity
             case android.R.id.home:
                 Intent intent = new Intent(this, StartupScreenActivity.class);
                 startActivity(intent);
-                // TODO: this is the better way, but it minimizes the application?
+                // this is the better way, but it minimizes the application now?
                 //NavUtils.navigateUpFromSameTask(this);
                 return true;
         }

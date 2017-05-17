@@ -27,11 +27,9 @@ public class StartupScreenActivity extends AppCompatActivity
                 intent = new Intent(this, X01SetupActivity.class);
                 break;
             case R.id.play_cricket_button:
-                // TODO: implement
                 //intent = new Intent(this, CricketSetupActivity.class);
                 break;
             case R.id.play_other_button:
-                // TODO: implement
                 //intent = new Intent(this, SelectGameActivity.class);
                 break;
             case R.id.account_settings_button:
