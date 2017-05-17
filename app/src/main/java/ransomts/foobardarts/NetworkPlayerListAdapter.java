@@ -7,6 +7,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import ransomts.foobardarts.X01.PlayersReady;
 
 /**
  * Adapter class to implement the network player view
@@ -18,18 +22,35 @@ public class NetworkPlayerListAdapter  extends RecyclerView.Adapter<NetworkPlaye
     // ArrayList
     // Key: Position in list
     //
-    // Value: HashMap
+    // Value: Tuple
     // Key: Player name
     // Value: Player status (true if ready)
     private ArrayList<Tuple<String, Boolean>> networkPlayers;
+    private HashMap<String, Boolean> networkPlayersMap;
 
     private NetworkPlayerListAdapter() {
+
         networkPlayers = new ArrayList<>();
+        networkPlayersMap = new HashMap<>();
     }
 
     public NetworkPlayerListAdapter(ArrayList<Tuple<String, Boolean>> networkPlayers) {
         this();
         this.networkPlayers = networkPlayers;
+    }
+
+    public NetworkPlayerListAdapter(PlayersReady playersReady) {
+        // I used a generic map instead of a hashmap i guess? Check on this?
+
+        HashMap<String, Boolean> networkPlayersMap = playersReady.getPlayersReady();
+        ArrayList<Tuple<String, Boolean>> networkPlayers = new ArrayList<>();
+        for (String player : networkPlayersMap.keySet()) {
+            Tuple playerStatus = new Tuple(player, networkPlayersMap.get(player));
+            networkPlayers.add(playerStatus);
+        }
+        this.networkPlayersMap = networkPlayersMap;
+        this.networkPlayers = networkPlayers;
+
     }
 
     @Override
@@ -47,6 +68,7 @@ public class NetworkPlayerListAdapter  extends RecyclerView.Adapter<NetworkPlaye
 
         Tuple networkPlayer = networkPlayers.get(position);
         if (networkPlayer != null) {
+
             holder.playerName.setText((String) networkPlayer.getA());
             String status = "not ready";
             if ((boolean) networkPlayer.getB()) {
