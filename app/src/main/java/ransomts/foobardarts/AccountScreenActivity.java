@@ -167,6 +167,8 @@ public class AccountScreenActivity extends AppCompatActivity
         // Firebase sign out
         mAuth.signOut();
 
+        // Google sign out
+        Auth.GoogleSignInApi.signOut(mGoogleApiClient);
     }
     @Override
     public void onClick(View v) {

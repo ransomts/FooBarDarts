@@ -160,7 +160,7 @@ public class X01SetupActivity extends AppCompatActivity
                 if (playersReady != null) {
                     if (playersReady.allPlayersReady()) {
                         Log.i(TAG, "Starting Scoreboard Activity");
-                        setPlayersReady(playersReady);
+                        //setPlayersReady(playersReady);
                         networkPlayerListAdapter.notifyDataSetChanged();
                         startGame();
                     } else {

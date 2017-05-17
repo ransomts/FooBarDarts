@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,12 +17,15 @@ import java.util.Set;
 
 public class PlayersReady implements Parcelable {
     HashMap<String, Boolean> playersReady;
+    private ArrayList<String> turnOrder;
 
     public PlayersReady() {
+
         playersReady = new HashMap<>();
     }
 
     public PlayersReady(HashMap<String, Boolean> playersReady) {
+        this();
         setPlayersReady(playersReady);
     }
 
@@ -36,6 +40,15 @@ public class PlayersReady implements Parcelable {
                 return false;
             }
         }
+
+        // Once every person is ready, assign an order to them
+        turnOrder = new ArrayList<>();
+        for (String key : playersReady.keySet()) {
+            turnOrder.add(key);
+        }
+        // and destroy the hashmap, since every person is ready now
+        // plus this changes how the object is represented in the database
+        playersReady = null;
         return true;
     }
 
@@ -47,6 +60,16 @@ public class PlayersReady implements Parcelable {
         return playersReady;
     }
 
+    public void addPlayer(String playerName) {
+        // All players start out not ready
+        playersReady.put(playerName, false);
+    }
+
+    public ArrayList<String> getTurnOrder() { return turnOrder; }
+    public void setTurnOrder(ArrayList<String> turnOrder) {
+        this.turnOrder = turnOrder;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -54,26 +77,13 @@ public class PlayersReady implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(this.playersReady.size());
-        for (Map.Entry<String, Boolean> entry : this.playersReady.entrySet()) {
-            dest.writeString(entry.getKey());
-            dest.writeValue(entry.getValue());
-        }
-    }
-
-    public void addPlayer(String playerName) {
-        // All players start out not ready
-        playersReady.put(playerName, false);
+        dest.writeSerializable(this.playersReady);
+        dest.writeStringList(this.turnOrder);
     }
 
     protected PlayersReady(Parcel in) {
-        int playersReadySize = in.readInt();
-        this.playersReady = new HashMap<String, Boolean>(playersReadySize);
-        for (int i = 0; i < playersReadySize; i++) {
-            String key = in.readString();
-            Boolean value = (Boolean) in.readValue(Boolean.class.getClassLoader());
-            this.playersReady.put(key, value);
-        }
+        this.playersReady = (HashMap<String, Boolean>) in.readSerializable();
+        this.turnOrder = in.createStringArrayList();
     }
 
     public static final Parcelable.Creator<PlayersReady> CREATOR = new Parcelable.Creator<PlayersReady>() {
