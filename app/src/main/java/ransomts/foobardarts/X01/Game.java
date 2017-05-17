@@ -41,6 +41,7 @@ abstract class Game implements Parcelable {
                 String gameId,
                 PlayersReady playersReady) {
         this(shotsPerTurn, null, null, gameId, null, "notStarted", null, playersReady, null, null, null);
+        turns = new ArrayList<>();
         //getGameRef().setValue(this);
     }
 
@@ -176,8 +177,11 @@ abstract class Game implements Parcelable {
     // returns a string of the winners ID when a winner is decided
     public String addTurn(Turn turn) {
         updateScore(turn); // update the local scores
+        // actually add the turn to the list of turns
+        turns.add(turn);
         // push turn to database
         DatabaseReference gameRef = FirebaseDatabase.getInstance().getReference().child("games").child(getState()).child(getGameId());
+
         gameRef.child("turns").setValue(getTurns());
         gameRef.child("currentScores").setValue(currentScores);
         return winConditionMet();

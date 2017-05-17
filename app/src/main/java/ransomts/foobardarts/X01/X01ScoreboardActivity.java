@@ -99,6 +99,10 @@ public class X01ScoreboardActivity extends AppCompatActivity
                 ((TextView) findViewById(R.id.view_third_local_shot))
         };
 
+        for (int i = 0; i < turn.getShotsPerTurn(); i++) {
+            textViews[i].setText("[m][s]");
+        }
+
         for (int i = 0; i < turn.getShotsTaken(); i++) {
             display_string = String.valueOf(turn.getValues().get(i)) + "\n" +
                     String.valueOf(turn.getMods().get(i));
@@ -176,6 +180,8 @@ public class X01ScoreboardActivity extends AppCompatActivity
             // TODO: Undo button showing some runtime logic errors
             case R.id.buttonUndo:
                 turn.removeShot();
+                updateLocalScoreboard(turn);
+                break;
             case R.id.toggle_double:
             case R.id.toggle_triple:
                 handleModifiers(v);

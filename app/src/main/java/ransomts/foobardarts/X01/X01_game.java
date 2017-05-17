@@ -66,6 +66,7 @@ class X01_game extends Game {
         this.scoreGoal = scoreGoal;
         this.doubleIn = double_in;
         this.doubleOut = double_out;
+        setInitialScores();
     }
 
     @Override
