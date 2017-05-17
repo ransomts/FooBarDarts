@@ -139,26 +139,58 @@ public class X01SetupActivity extends AppCompatActivity
 
         pullGameParametersFromActivity();
 
-        game = new X01_game(
-                Integer.valueOf(scoreGoalSpinner.getSelectedItem().toString()),
-                doubleInToggle.isChecked(),
-                doubleOutToggle.isChecked(),
-                game_id,
-                playerList);
+        gameReference = FirebaseDatabase.getInstance().getReference().child("games").child("notStarted").child(game_id);
+        gameReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.i(TAG, "Data changed in game listener");
+                X01_game databaseGame = dataSnapshot.getValue(X01_game.class);
+                // Join an existing game or start a new one
+                if (databaseGame != null) {
+                    Log.i(TAG, "There is already a game open, connecting");
+                    game = databaseGame;
+                } else {
+                    Log.i(TAG, "Creating a new game");
+                    game = new X01_game(
+                            Integer.valueOf(scoreGoalSpinner.getSelectedItem().toString()),
+                            doubleInToggle.isChecked(),
+                            doubleOutToggle.isChecked(),
+                            game_id,
+                            playerList);
+                    Log.i(TAG, "Adding the game to the database");
+                    gameReference.setValue(game);
+                }
+                setupPlayersReadyListener();
+            }
 
-        gameReference = FirebaseDatabase.getInstance().getReference().child("games").child(game.getState()).child(game.getGameId());
-        gameReference.setValue(game);
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void setupPlayersReadyListener() {
         // Update the list of network players to reflect the ready_to_start node in the database
         gameReference.child("playersReady").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-
+                Log.i(TAG, "Data changed in players ready listener");
                 PlayersReady playersReady = dataSnapshot.getValue(PlayersReady.class);
 
-                game.setPlayersReady(playersReady);
-
                 if (playersReady != null) {
-                    if (playersReady.allPlayersReady()) {
+                    Log.i(TAG, "There is already playersReady data in the database");
+
+                    if (!playersReady.getPlayersReady().containsKey(currentUser)) {
+                        Log.i(TAG, "Adding the local user to the playersReady object and pushing to database");
+                        playersReady.addPlayer(currentUser);
+                        gameReference.child("playersReady").setValue(playersReady);
+                        return;
+                    }
+
+                    game.setPlayersReady(playersReady);
+
+                    if (game.getPlayersReady().allPlayersReady()) {
                         Log.i(TAG, "Starting Scoreboard Activity");
                         //setPlayersReady(playersReady);
                         networkPlayerListAdapter.notifyDataSetChanged();
@@ -184,8 +216,8 @@ public class X01SetupActivity extends AppCompatActivity
         switch (v.getId()) {
             case R.id.button_join_network_game:
                 ToggleButton tb = (ToggleButton) findViewById(R.id.button_join_network_game);
-                playerList.updatePlayerStatus(currentUser, tb.isChecked());
-                gameReference.child("playersReady").setValue(playerList);
+                game.getPlayersReady().updatePlayerStatus(currentUser, tb.isChecked());
+                gameReference.child("playersReady").setValue(game.getPlayersReady());
                 break;
             case R.id.button_local_game:
                 startGame();

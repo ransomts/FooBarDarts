@@ -7,6 +7,13 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import ransomts.foobardarts.R;
@@ -42,6 +49,26 @@ public class X01ScoreboardActivity extends AppCompatActivity
 
         localPlayerView = (TextView) findViewById(R.id.view_local_player);
         remotePlayerView = (TextView) findViewById(R.id.view_remote_player);
+
+        DatabaseReference remoteTurns = FirebaseDatabase.getInstance().getReference();
+        remoteTurns = remoteTurns.child("games").child(game.getState()).child(game.getGameId()).child("playersReady");
+        remoteTurns.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                /*
+                ArrayList turns = dataSnapshot.getValue(ArrayList.class);
+                Turn latestTurn = (Turn) turns.get(turns.size()-1);
+                if (!turn.getPlayerId().equals(localPlayerName)) {
+                    notifyScoreboard(turn);
+                }
+                */
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     void handleShotValues(int shotValue) {
