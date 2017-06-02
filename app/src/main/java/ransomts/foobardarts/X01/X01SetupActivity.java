@@ -101,7 +101,10 @@ public class X01SetupActivity extends AppCompatActivity
     public void startGame() {
         Intent intent = new Intent(this, X01ScoreboardActivity.class);
 
+        // Set up the last few fields in the game
         game.setStartTime(Calendar.getInstance().getTime());
+        game.setTurnPointer(0);
+        // Set up the game in the next database node
         game.moveGameForward();
 
         intent.putExtra("game", game);
