@@ -18,12 +18,13 @@ import java.util.HashMap;
 abstract class Game implements Parcelable {
 
     private int shotsPerTurn;
+    // Just the index into the playersReady turnOrder arraylist
+    private int turnPointer;
     private Date startTime;
     private Date endTime;
     private String gameId;
     private String winner;
     private String state;
-    private Turn mostRecentTurn;
     // Having this be an abstracted class adds a layer to the database playersReady entry
     // Maybe that's not so good? It looks fine for now
     private PlayersReady playersReady;
@@ -42,6 +43,7 @@ abstract class Game implements Parcelable {
                 PlayersReady playersReady) {
         this(shotsPerTurn, null, null, gameId, null, "notStarted", null, playersReady, null, null, null);
         turns = new ArrayList<>();
+        currentScores = new HashMap<>();
         //getGameRef().setValue(this);
     }
 
@@ -64,7 +66,6 @@ abstract class Game implements Parcelable {
         setGameId(gameId);
         setWinner(winner);
         setState(state);
-        setMostRecentTurn(mostRecentTurn);
         setPlayersReady(playersReady);
         //setPlayers(players);
         setTurns(turns);
@@ -139,15 +140,6 @@ abstract class Game implements Parcelable {
         return turns;
     }
 
-    // Maybe this one isn't needed?
-    public void setMostRecentTurn(Turn mostRecentTurn) {
-        this.mostRecentTurn = mostRecentTurn;
-    }
-
-    public Turn getMostRecentTurn() {
-        return mostRecentTurn;
-    }
-
     public HashMap<String, Integer> getCurrentScores() {
         return currentScores;
     }
@@ -162,6 +154,14 @@ abstract class Game implements Parcelable {
 
     public void setShotsPerTurn(int shotsPerTurn) {
         this.shotsPerTurn = shotsPerTurn;
+    }
+
+    public int getTurnPointer() { return turnPointer; }
+
+    public void setTurnPointer(int turnPointer) { this.turnPointer = turnPointer; }
+
+    public Turn getMostRecentTurn() {
+        return getTurns().get(turns.size());
     }
 
     // should return the key to the winner entry in the currentScores hashMap, or null if not won yet
@@ -184,6 +184,9 @@ abstract class Game implements Parcelable {
 
         gameRef.child("turns").setValue(getTurns());
         gameRef.child("currentScores").setValue(currentScores);
+
+        turnPointer = (turnPointer + 1) % playersReady.getPlayersReady().size();
+
         return winConditionMet();
     }
 
@@ -200,7 +203,6 @@ abstract class Game implements Parcelable {
         dest.writeString(this.gameId);
         dest.writeString(this.winner);
         dest.writeString(this.state);
-        dest.writeParcelable(this.mostRecentTurn, flags);
         dest.writeParcelable(this.playersReady, flags);
         //dest.writeStringList(this.players);
         dest.writeTypedList(this.turns);
@@ -216,7 +218,6 @@ abstract class Game implements Parcelable {
         this.gameId = in.readString();
         this.winner = in.readString();
         this.state = in.readString();
-        this.mostRecentTurn = in.readParcelable(Turn.class.getClassLoader());
         this.playersReady = in.readParcelable(PlayersReady.class.getClassLoader());
         //this.players = in.createStringArrayList();
         this.turns = in.createTypedArrayList(Turn.CREATOR);
