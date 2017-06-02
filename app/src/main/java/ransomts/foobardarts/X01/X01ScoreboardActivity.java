@@ -4,6 +4,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -53,19 +54,32 @@ public class X01ScoreboardActivity extends AppCompatActivity
         remotePlayerView = (TextView) findViewById(R.id.view_remote_player);
 
         DatabaseReference remoteTurns = FirebaseDatabase.getInstance().getReference();
-        remoteTurns = remoteTurns.child("games").child(game.getState()).child(game.getGameId()).child("playersReady");
+        remoteTurns = remoteTurns.child("games").child(game.getState()).child(game.getGameId());
         remoteTurns.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                // Things that can change in the game object:
+                // turns - when a turn is submitted, it is added to the arraylist
+                // current_scores - always computed on the submitting device, then pushed and pulled here
+                // winner - when a winner is declared, this will not be null
+                Game new_game = dataSnapshot.getValue(Game.class);
 
-                // TODO: this is broke as shit
-                GenericTypeIndicator<ArrayList<Turn>> t = new GenericTypeIndicator<ArrayList<Turn>>() {};
-                ArrayList<Turn> turns = dataSnapshot.getValue(t);
-                Turn latestTurn = turns.get(turns.size()-1);
-                if (!turn.getPlayerId().equals(localPlayerName)) {
-                    notifyScoreboard(turn);
+                if (new_game.getWinner() != null) {
+                    // A winner is you!
+                    LinearLayout localPlayerScore = (LinearLayout) findViewById(R.id.local_player_score);
+                    LinearLayout remotePlayerScore = (LinearLayout) findViewById(R.id.remote_player_score);
+
+                    if (new_game.getWinner().equals(localPlayerName)) {
+                        localPlayerScore.setBackgroundColor(0x42f45c);
+                        remotePlayerScore.setBackgroundColor(0xe26b38);
+                    } else {
+                        remotePlayerScore.setBackgroundColor(0x42f45c);
+                        localPlayerScore.setBackgroundColor(0xe26b38);
+                    }
                 }
-
+                if (localPlayerName.equals(new_game.getPlayersReady().getTurnOrder().get(new_game.getTurnPointer())));
+                updateRemoteScoreboard(game.getMostRecentTurn());
+                game.setCurrentScores(new_game.getCurrentScores());
             }
 
             @Override
@@ -73,8 +87,25 @@ public class X01ScoreboardActivity extends AppCompatActivity
 
             }
         });
+
     }
 
+    // Just activate or deactivate every button on the page
+    private void activateScoreButtons(boolean enabled) {
+        int[] ids = {
+                R.id.button0, R.id.button1, R.id.button2, R.id.button3, R.id.button4,
+                R.id.button5, R.id.button6, R.id.button7, R.id.button8, R.id.button9,
+                R.id.button10, R.id.button11, R.id.button12, R.id.button13, R.id.button14,
+                R.id.button15, R.id.button16, R.id.button17, R.id.button18, R.id.button19, R.id.button20,
+                R.id.buttonBull, R.id.buttonUndo, R.id.toggle_double, R.id.toggle_triple};
+
+        for (int i = 0; i < ids.length; i++) {
+            Button button = (Button) findViewById(ids[i]);
+            button.setEnabled(enabled);
+        }
+    }
+
+    // When a numeric button is hit, this interfaces to the updateLocalScoreboard to reflect the shot
     void handleShotValues(int shotValue) {
 
         // keep track of the shots as they are being entered
@@ -90,6 +121,7 @@ public class X01ScoreboardActivity extends AppCompatActivity
         shotModifier = Turn.Modifier.Single;
     }
 
+    // Keeps the shotModifier updated to the value shown in the toggle buttons, logic handled here
     private void handleModifiers(View v) {
         switch (v.getId()) {
             // Double Button was hit
@@ -119,6 +151,9 @@ public class X01ScoreboardActivity extends AppCompatActivity
         }
     }
 
+    /*
+    Updates the scoreboard for a local player (/id:local_player_score) as they hit buttons.
+     */
     private void updateLocalScoreboard(Turn turn) {
 
         String display_string;
@@ -127,6 +162,35 @@ public class X01ScoreboardActivity extends AppCompatActivity
                 ((TextView) findViewById(R.id.view_first_local_shot)),
                 ((TextView) findViewById(R.id.view_second_local_shot)),
                 ((TextView) findViewById(R.id.view_third_local_shot))
+        };
+
+        for (int i = 0; i < turn.getShotsPerTurn(); i++) {
+            textViews[i].setText("[m][s]");
+        }
+
+        for (int i = 0; i < turn.getShotsTaken(); i++) {
+            display_string = String.valueOf(turn.getValues().get(i)) + "\n" +
+                    String.valueOf(turn.getMods().get(i));
+            textViews[i].setText(display_string);
+        }
+        doubles.setChecked(false);
+        triples.setChecked(false);
+    }
+
+    /*
+Updates the scoreboard for a remote player (/id:remote_player_score) when they submit their turn to the database.
+ */
+    private void updateRemoteScoreboard(Turn turn) {
+
+        String display_string;
+
+        TextView remotePlayerName = (TextView) findViewById(R.id.view_remote_player);
+        remotePlayerName.setText(turn.getPlayerId());
+
+        TextView[] textViews = {
+                ((TextView) findViewById(R.id.view_first_remote_shot)),
+                ((TextView) findViewById(R.id.view_second_remote_shot)),
+                ((TextView) findViewById(R.id.view_third_remote_shot))
         };
 
         for (int i = 0; i < turn.getShotsPerTurn(); i++) {
